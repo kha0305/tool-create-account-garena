@@ -155,6 +155,35 @@ const Dashboard = () => {
     toast.success('Đã xuất file CSV');
   };
 
+  // Handle verify login
+  const handleVerifyLogin = (account) => {
+    setSelectedAccount(account);
+    setVerifyDialog(true);
+  };
+
+  // Open Garena login page
+  const openGarenaLogin = () => {
+    if (!selectedAccount) return;
+
+    const loginUrl = `https://sso.garena.com/universal/login?app_id=10100&redirect_uri=https://account.garena.com/?locale_name=SG&locale=vi-VN`;
+    
+    // Open in new tab
+    window.open(loginUrl, '_blank');
+    
+    // Copy credentials to clipboard
+    const credentials = `Username/Email: ${selectedAccount.email}\nPhone: ${selectedAccount.phone}\nPassword: ${selectedAccount.password}`;
+    navigator.clipboard.writeText(credentials);
+    
+    toast.success('Đã mở trang đăng nhập và copy thông tin!');
+    
+    // Update status to pending verification
+    axios.post(`${API}/accounts/${selectedAccount.id}/verify`)
+      .then(() => {
+        fetchAccounts();
+      })
+      .catch(err => console.error(err));
+  };
+
   // Load accounts on mount
   useEffect(() => {
     fetchAccounts();
