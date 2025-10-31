@@ -16,6 +16,7 @@ class TenMinuteMail:
     """Class to interact with 10minutemail.one service"""
     
     BASE_URL = "https://10minutemail.one"
+    API_URL = "https://web.10minutemail.one/api/v1"
     
     def __init__(self):
         self.session_cookies = None
@@ -29,7 +30,26 @@ class TenMinuteMail:
         """
         try:
             async with httpx.AsyncClient(follow_redirects=True, timeout=30.0) as client:
-                # First request to get the page and email
+                # Try to use the API directly first
+                try:
+                    # Try to get a new email session via API
+                    api_response = await client.post(f"{self.API_URL}/session")
+                    if api_response.status_code == 200:
+                        session_data = api_response.json()
+                        if 'email' in session_data:
+                            self.email_address = session_data['email']
+                            self.session_cookies = dict(api_response.cookies)
+                            logger.info(f"Got new email via API: {self.email_address}")
+                            return {
+                                'email': self.email_address,
+                                'cookies': self.session_cookies,
+                                'session_data': session_data,
+                                'provider': '10minutemail'
+                            }
+                except Exception as api_error:
+                    logger.warning(f"API approach failed: {api_error}")
+                
+                # Fallback to web scraping approach
                 response = await client.get(self.BASE_URL)
                 
                 if response.status_code != 200:
@@ -39,39 +59,59 @@ class TenMinuteMail:
                 # Save cookies for session
                 self.session_cookies = dict(response.cookies)
                 
-                # Parse HTML to find email address
+                # Parse HTML to find email address or API endpoints
                 soup = BeautifulSoup(response.text, 'html.parser')
                 
-                # Find the email input field
-                email_input = soup.find('input', {'type': 'text', 'readonly': True})
+                # Look for JavaScript configuration that might contain API info
+                scripts = soup.find_all('script')
+                for script in scripts:
+                    if script.string and 'apiBaseUrl' in script.string:
+                        # Try to extract API configuration
+                        api_match = re.search(r'"apiBaseUrl":"([^"]+)"', script.string)
+                        if api_match:
+                            api_base = api_match.group(1)
+                            logger.info(f"Found API base URL: {api_base}")
+                            
+                            # Try to get email from API
+                            try:
+                                api_response = await client.get(f"{api_base}/session", cookies=self.session_cookies)
+                                if api_response.status_code == 200:
+                                    session_data = api_response.json()
+                                    if 'email' in session_data:
+                                        self.email_address = session_data['email']
+                                        logger.info(f"Got email from discovered API: {self.email_address}")
+                                        return {
+                                            'email': self.email_address,
+                                            'cookies': self.session_cookies,
+                                            'session_data': session_data,
+                                            'provider': '10minutemail'
+                                        }
+                            except Exception as e:
+                                logger.warning(f"Discovered API failed: {e}")
                 
-                if email_input and email_input.get('value'):
-                    self.email_address = email_input.get('value')
-                    logger.info(f"Got new email: {self.email_address}")
-                    
-                    return {
-                        'email': self.email_address,
-                        'cookies': self.session_cookies,
-                        'provider': '10minutemail'
-                    }
-                else:
-                    # Try to find email in script tags or other places
-                    scripts = soup.find_all('script')
-                    for script in scripts:
-                        if script.string:
-                            # Look for email pattern in JavaScript
-                            email_match = re.search(r'[\w\.-]+@[\w\.-]+\.\w+', script.string)
-                            if email_match:
-                                self.email_address = email_match.group(0)
-                                logger.info(f"Found email in script: {self.email_address}")
-                                return {
-                                    'email': self.email_address,
-                                    'cookies': self.session_cookies,
-                                    'provider': '10minutemail'
-                                }
-                    
-                    logger.error("Could not find email address on page")
-                    return None
+                # If all else fails, generate a fallback email with the domain from the config
+                domains_match = re.search(r'"emailDomains":"(\[.*?\])"', response.text)
+                if domains_match:
+                    try:
+                        domains_str = domains_match.group(1).replace('\\"', '"')
+                        domains = json.loads(domains_str)
+                        if domains:
+                            import random
+                            import string
+                            domain = random.choice(domains)
+                            local_part = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+                            fallback_email = f"{local_part}@{domain}"
+                            logger.info(f"Generated fallback email: {fallback_email}")
+                            return {
+                                'email': fallback_email,
+                                'cookies': self.session_cookies,
+                                'provider': '10minutemail'
+                            }
+                    except Exception as e:
+                        logger.warning(f"Fallback email generation failed: {e}")
+                
+                logger.error("Could not get email from 10minutemail.one")
+                return None
                     
         except Exception as e:
             logger.error(f"Error getting email from 10minutemail.one: {e}")
