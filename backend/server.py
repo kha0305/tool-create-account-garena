@@ -41,7 +41,7 @@ class GarenaAccount(BaseModel):
     email: str
     phone: str
     password: str
-    status: str = "created"  # created, verified, failed
+    status: str = "created"  # created, verified, failed, pending_verification
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class CreateAccountRequest(BaseModel):
