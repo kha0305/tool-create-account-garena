@@ -13,6 +13,7 @@ const API = `${BACKEND_URL}/api`;
 
 const Dashboard = () => {
   const [quantity, setQuantity] = useState('5');
+  const [emailProvider, setEmailProvider] = useState('temp-mail');
   const [creating, setCreating] = useState(false);
   const [currentJob, setCurrentJob] = useState(null);
   const [accounts, setAccounts] = useState([]);
@@ -23,9 +24,18 @@ const Dashboard = () => {
   });
   const [verifyDialog, setVerifyDialog] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [inboxDialog, setInboxDialog] = useState(false);
+  const [inboxMessages, setInboxMessages] = useState([]);
+  const [checkingInbox, setCheckingInbox] = useState(false);
 
   // Quantity options
   const quantities = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100];
+
+  // Email providers
+  const emailProviders = [
+    { id: 'temp-mail', name: 'Temp Mail API', icon: '📧' },
+    { id: '10minutemail', name: '10 Minute Mail', icon: '⏱️' }
+  ];
 
   // Apply theme
   useEffect(() => {
