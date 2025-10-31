@@ -172,7 +172,7 @@ async def create_garena_account(username: str, email: str, phone: str, password:
         "password": password
     }
 
-async def process_account_creation(job_id: str, quantity: int):
+async def process_account_creation(job_id: str, quantity: int, email_provider: str = "temp-mail"):
     """Background task to create accounts"""
     job_data = await db.creation_jobs.find_one({"job_id": job_id})
     if not job_data:
@@ -182,7 +182,9 @@ async def process_account_creation(job_id: str, quantity: int):
         try:
             # Generate account details
             username = generate_username()
-            email = await get_temp_email()
+            email_data = await get_temp_email(email_provider)
+            email = email_data['email']
+            email_session = email_data.get('session_data')
             phone = generate_phone()
             password = generate_password()
             
@@ -196,7 +198,9 @@ async def process_account_creation(job_id: str, quantity: int):
                     email=email,
                     phone=phone,
                     password=password,
-                    status="created"
+                    status="created",
+                    email_provider=email_provider,
+                    email_session_data=email_session
                 )
                 
                 account_dict = account.model_dump()
