@@ -127,6 +127,7 @@ class TenMinuteMail:
         try:
             cookies = email_data.get('cookies', {})
             email = email_data.get('email')
+            session_data = email_data.get('session_data', {})
             
             if not email:
                 return []
@@ -136,60 +137,77 @@ class TenMinuteMail:
                 timeout=30.0,
                 cookies=cookies
             ) as client:
-                # Try to get the inbox page
-                response = await client.get(self.BASE_URL)
-                
-                if response.status_code != 200:
-                    logger.error(f"Failed to check inbox: {response.status_code}")
-                    return []
-                
-                soup = BeautifulSoup(response.text, 'html.parser')
                 messages = []
                 
-                # Look for message elements
-                # The structure may vary, so we'll try multiple approaches
+                # Try API approach first
+                api_endpoints = [
+                    f"{self.API_URL}/messages",
+                    f"{self.API_URL}/inbox",
+                    f"{self.API_URL}/session/messages"
+                ]
                 
-                # Try to find API endpoint in page source
-                scripts = soup.find_all('script')
-                for script in scripts:
-                    if script.string and 'api' in script.string.lower():
-                        # Look for API endpoints in JavaScript
-                        api_match = re.search(r'["\'](/api/[^"\']+)["\']', script.string)
-                        if api_match:
-                            api_endpoint = api_match.group(1)
-                            logger.info(f"Found API endpoint: {api_endpoint}")
-                            
-                            # Try to call the API
-                            api_response = await client.get(f"{self.BASE_URL}{api_endpoint}")
-                            if api_response.status_code == 200:
-                                try:
-                                    data = api_response.json()
-                                    if isinstance(data, list):
-                                        messages = data
-                                    elif isinstance(data, dict) and 'messages' in data:
-                                        messages = data['messages']
-                                except:
-                                    pass
+                for api_endpoint in api_endpoints:
+                    try:
+                        api_response = await client.get(api_endpoint)
+                        if api_response.status_code == 200:
+                            data = api_response.json()
+                            if isinstance(data, list):
+                                messages = data
+                                break
+                            elif isinstance(data, dict) and 'messages' in data:
+                                messages = data['messages']
+                                break
+                            elif isinstance(data, dict) and 'data' in data:
+                                messages = data['data']
+                                break
+                    except Exception as e:
+                        logger.debug(f"API endpoint {api_endpoint} failed: {e}")
+                        continue
                 
-                # If no messages found via API, try parsing HTML
+                # If API didn't work, try web scraping
                 if not messages:
-                    # Look for message divs/cards
-                    message_elements = soup.find_all(['div', 'li'], class_=re.compile(r'message|mail|email', re.I))
+                    response = await client.get(self.BASE_URL)
                     
-                    for elem in message_elements:
-                        # Try to extract message info
-                        sender = elem.find(text=re.compile(r'from|sender', re.I))
-                        subject = elem.find(text=re.compile(r'subject', re.I))
-                        
-                        if sender or subject:
-                            messages.append({
-                                'sender': sender if sender else 'Unknown',
-                                'subject': subject if subject else 'No Subject',
-                                'received': 'Just now'
-                            })
+                    if response.status_code != 200:
+                        logger.error(f"Failed to check inbox: {response.status_code}")
+                        return []
+                    
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    
+                    # Look for API configuration in JavaScript
+                    scripts = soup.find_all('script')
+                    for script in scripts:
+                        if script.string and 'apiBaseUrl' in script.string:
+                            # Try to extract API configuration
+                            api_match = re.search(r'"apiBaseUrl":"([^"]+)"', script.string)
+                            if api_match:
+                                api_base = api_match.group(1)
+                                
+                                # Try to get messages from discovered API
+                                try:
+                                    api_response = await client.get(f"{api_base}/messages")
+                                    if api_response.status_code == 200:
+                                        data = api_response.json()
+                                        if isinstance(data, list):
+                                            messages = data
+                                        elif isinstance(data, dict) and 'messages' in data:
+                                            messages = data['messages']
+                                except Exception as e:
+                                    logger.debug(f"Discovered API messages failed: {e}")
                 
-                logger.info(f"Found {len(messages)} messages in inbox")
-                return messages
+                # Format messages to consistent structure
+                formatted_messages = []
+                for msg in messages:
+                    if isinstance(msg, dict):
+                        formatted_messages.append({
+                            'sender': msg.get('from', msg.get('sender', 'Unknown')),
+                            'subject': msg.get('subject', 'No Subject'),
+                            'body': msg.get('body', msg.get('content', '')),
+                            'received': msg.get('received', msg.get('timestamp', 'Unknown'))
+                        })
+                
+                logger.info(f"Found {len(formatted_messages)} messages in inbox")
+                return formatted_messages
                 
         except Exception as e:
             logger.error(f"Error checking inbox: {e}")
