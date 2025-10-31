@@ -80,11 +80,13 @@ def generate_password() -> str:
     return ''.join(random.choices(chars, k=12))
 
 def generate_phone() -> str:
-    """Generate mock phone number (TextNow simulation)"""
-    area_code = random.choice(['555', '888', '777', '666'])
-    exchange = ''.join(random.choices(string.digits, k=3))
-    number = ''.join(random.choices(string.digits, k=4))
-    return f"+1-{area_code}-{exchange}-{number}"
+    """Generate Vietnamese phone number (+84)"""
+    # Vietnamese mobile prefixes: 03, 05, 07, 08, 09
+    prefix = random.choice(['03', '05', '07', '08', '09'])
+    # Generate 8 more digits
+    middle = ''.join(random.choices(string.digits, k=4))
+    end = ''.join(random.choices(string.digits, k=4))
+    return f"+84-{prefix}{middle[:1]}-{middle[1:]}-{end}"
 
 async def get_temp_email() -> Optional[str]:
     """Get temporary email using Temp Mail API"""
