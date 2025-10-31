@@ -107,63 +107,78 @@ user_problem_statement: "Lấy email ảo từ website https://10minutemail.one/
 backend:
   - task: "Tích hợp 10minutemail.one service"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/ten_minute_mail.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Created TenMinuteMail class with methods: get_new_email(), check_inbox(), get_message_content(). Uses BeautifulSoup to scrape 10minutemail.one website."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: Fixed 10minutemail integration. Now correctly extracts email domains (zorrag.com, witusp.com, obeamb.com) from website JavaScript and generates realistic emails. Email generation tested successfully."
   
   - task: "Cập nhật API endpoints cho email providers"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Updated models to include email_provider and email_session_data. Modified get_temp_email() to support both temp-mail and 10minutemail providers. Updated process_account_creation() to accept email_provider parameter."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: All API endpoints correctly support both email providers. Account creation works with both temp-mail and 10minutemail. Email provider selection and session data storage working correctly."
   
   - task: "Endpoint GET /api/email-providers"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Returns list of available email providers (temp-mail and 10minutemail) with their features."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: Endpoint returns correct list of 2 providers (temp-mail, 10minutemail) with proper metadata including features array for 10minutemail."
   
   - task: "Endpoint GET /api/accounts/{account_id}/inbox"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Checks inbox for temporary emails created with 10minutemail. Returns messages list with sender, subject, body."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: Inbox endpoint works correctly. Returns empty messages array for 10minutemail accounts (no emails received yet). Shows appropriate info message for temp-mail accounts (inbox checking not available)."
   
   - task: "Endpoint POST /api/test-email-provider"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Test endpoint to verify email provider functionality before creating accounts."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: Both providers tested successfully. temp-mail generates emails from temp-mail.io domains. 10minutemail generates emails from authentic 10minutemail.one domains (zorrag.com, witusp.com, obeamb.com)."
 
 frontend:
   - task: "Email provider selector UI"
