@@ -369,7 +369,6 @@ const Dashboard = () => {
                     <tr>
                       <th>Username</th>
                       <th>Email</th>
-                      <th>Số điện thoại</th>
                       <th>Mật khẩu</th>
                       <th>Trạng thái</th>
                       <th>Ngày tạo</th>
@@ -381,7 +380,6 @@ const Dashboard = () => {
                       <tr key={account.id} data-testid={`account-row-${index}`}>
                         <td className={`font-semibold ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-700'}`} data-testid={`account-username-${index}`}>{account.username}</td>
                         <td className="text-sm" data-testid={`account-email-${index}`}>{account.email}</td>
-                        <td className="text-sm" data-testid={`account-phone-${index}`}>{account.phone}</td>
                         <td className="text-sm font-mono" data-testid={`account-password-${index}`}>{account.password}</td>
                         <td>
                           <span className={`status-badge status-${account.status} ${theme}`} data-testid={`account-status-${index}`}>
