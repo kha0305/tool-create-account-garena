@@ -41,12 +41,16 @@ class GarenaAccount(BaseModel):
     username: str
     email: str
     password: str
+    phone: Optional[str] = None
     status: str = "creating"  # creating, created, verified, failed
+    email_provider: str = "temp-mail"  # temp-mail or 10minutemail
+    email_session_data: Optional[Dict[str, Any]] = None  # Session data for email checking
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     error_message: Optional[str] = None
 
 class CreateAccountRequest(BaseModel):
     quantity: int = Field(ge=1, le=100)
+    email_provider: str = Field(default="temp-mail")  # temp-mail or 10minutemail
 
 class CreationJob(BaseModel):
     model_config = ConfigDict(extra="ignore")
