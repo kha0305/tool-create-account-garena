@@ -535,6 +535,92 @@ const Dashboard = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Inbox Dialog */}
+      <Dialog open={inboxDialog} onOpenChange={setInboxDialog}>
+        <DialogContent className={`${theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} max-w-2xl`}>
+          <DialogHeader>
+            <DialogTitle className={`flex items-center gap-2 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
+              <Inbox size={24} className={theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} />
+              Inbox Email
+            </DialogTitle>
+            <DialogDescription className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
+              {selectedAccount && `Email: ${selectedAccount.email}`}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {checkingInbox ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className={`animate-spin ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`} size={32} />
+                <span className={`ml-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Đang kiểm tra inbox...</span>
+              </div>
+            ) : inboxMessages.length === 0 ? (
+              <div className={`text-center py-12 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                <Mail size={48} className="mx-auto mb-4 opacity-50" />
+                <p>Inbox trống - chưa có email nào</p>
+                <p className="text-sm mt-2">Email verification có thể mất vài phút để đến</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {inboxMessages.map((message, index) => (
+                  <div 
+                    key={index}
+                    className={`p-4 rounded-lg border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className={`font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>
+                          {message.subject || 'No Subject'}
+                        </div>
+                        <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                          From: {message.sender || message.from || 'Unknown'}
+                        </div>
+                      </div>
+                      <div className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+                        {message.received || message.date || 'Just now'}
+                      </div>
+                    </div>
+                    {message.body && (
+                      <div className={`text-sm mt-2 p-3 rounded ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+                        <div className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
+                          {message.body.substring(0, 200)}
+                          {message.body.length > 200 && '...'}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-between items-center pt-4 border-t border-gray-700">
+            <Button
+              onClick={() => handleCheckInbox(selectedAccount)}
+              variant="outline"
+              size="sm"
+              className={theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}
+              disabled={checkingInbox}
+            >
+              {checkingInbox ? (
+                <>
+                  <Loader2 className="mr-2 animate-spin" size={16} />
+                  Đang tải...
+                </>
+              ) : (
+                <>
+                  <Inbox className="mr-2" size={16} />
+                  Làm mới
+                </>
+              )}
+            </Button>
+            <span className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-600'}`}>
+              {inboxMessages.length} email
+            </span>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
