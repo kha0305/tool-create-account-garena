@@ -426,6 +426,11 @@ const Dashboard = () => {
                         <td className={`font-semibold ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-700'}`} data-testid={`account-username-${index}`}>{account.username}</td>
                         <td className="text-sm" data-testid={`account-email-${index}`}>{account.email}</td>
                         <td className="text-sm font-mono" data-testid={`account-password-${index}`}>{account.password}</td>
+                        <td className="text-xs">
+                          <span className={`px-2 py-1 rounded text-xs ${theme === 'dark' ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
+                            {account.email_provider === '10minutemail' ? '⏱️ 10Min' : '📧 TempMail'}
+                          </span>
+                        </td>
                         <td>
                           <span className={`status-badge status-${account.status} ${theme}`} data-testid={`account-status-${index}`}>
                             {account.status === 'pending_verification' ? 'Chờ xác thực' : account.status}
@@ -436,6 +441,18 @@ const Dashboard = () => {
                         </td>
                         <td>
                           <div className="flex gap-1">
+                            {account.email_provider === '10minutemail' && (
+                              <Button
+                                onClick={() => handleCheckInbox(account)}
+                                variant="ghost"
+                                size="sm"
+                                className={theme === 'dark' ? 'text-blue-400 hover:text-blue-300 hover:bg-blue-900/20' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'}
+                                data-testid={`check-inbox-button-${index}`}
+                                title="Kiểm tra inbox"
+                              >
+                                <Inbox size={16} />
+                              </Button>
+                            )}
                             <Button
                               onClick={() => handleVerifyLogin(account)}
                               variant="ghost"
