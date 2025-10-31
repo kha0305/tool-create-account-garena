@@ -385,22 +385,35 @@ const Dashboard = () => {
                         <td className="text-sm font-mono" data-testid={`account-password-${index}`}>{account.password}</td>
                         <td>
                           <span className={`status-badge status-${account.status} ${theme}`} data-testid={`account-status-${index}`}>
-                            {account.status}
+                            {account.status === 'pending_verification' ? 'Chờ xác thực' : account.status}
                           </span>
                         </td>
                         <td className="text-sm" data-testid={`account-created-${index}`}>
                           {new Date(account.created_at).toLocaleString('vi-VN')}
                         </td>
                         <td>
-                          <Button
-                            onClick={() => handleDeleteAccount(account.id)}
-                            variant="ghost"
-                            size="sm"
-                            className={theme === 'dark' ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20' : 'text-red-600 hover:text-red-700 hover:bg-red-50'}
-                            data-testid={`delete-account-button-${index}`}
-                          >
-                            <Trash2 size={16} />
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button
+                              onClick={() => handleVerifyLogin(account)}
+                              variant="ghost"
+                              size="sm"
+                              className={theme === 'dark' ? 'text-green-400 hover:text-green-300 hover:bg-green-900/20' : 'text-green-600 hover:text-green-700 hover:bg-green-50'}
+                              data-testid={`verify-account-button-${index}`}
+                              title="Kiểm tra đăng nhập"
+                            >
+                              <ExternalLink size={16} />
+                            </Button>
+                            <Button
+                              onClick={() => handleDeleteAccount(account.id)}
+                              variant="ghost"
+                              size="sm"
+                              className={theme === 'dark' ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20' : 'text-red-600 hover:text-red-700 hover:bg-red-50'}
+                              data-testid={`delete-account-button-${index}`}
+                              title="Xóa tài khoản"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
