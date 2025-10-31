@@ -420,41 +420,42 @@ h1, h2, h3, h4, h5, h6 {
   top: 20px;
   right: 20px;
   z-index: 1000;
-  padding: 12px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  font-size: 14px;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .theme-toggle.dark {
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(30, 41, 59, 0.9);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f1f5f9;
+  color: #fbbf24;
 }
 
 .theme-toggle.light {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(226, 232, 240, 0.8);
   color: #1e293b;
 }
 
 .theme-toggle:hover {
-  transform: translateY(-2px);
+  transform: scale(1.1) rotate(15deg);
 }
 
 .theme-toggle.dark:hover {
   background: rgba(30, 41, 59, 1);
-  box-shadow: 0 8px 16px rgba(0, 255, 157, 0.2);
+  box-shadow: 0 8px 16px rgba(251, 191, 36, 0.3);
 }
 
 .theme-toggle.light:hover {
   background: rgba(255, 255, 255, 1);
-  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.15);
+  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.2);
 }
