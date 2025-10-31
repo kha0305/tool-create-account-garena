@@ -171,7 +171,7 @@ const Dashboard = () => {
     window.open(loginUrl, '_blank');
     
     // Copy credentials to clipboard
-    const credentials = `Username/Email: ${selectedAccount.email}\nPhone: ${selectedAccount.phone}\nPassword: ${selectedAccount.password}`;
+    const credentials = `Username: ${selectedAccount.username}\nEmail: ${selectedAccount.email}\nPassword: ${selectedAccount.password}`;
     navigator.clipboard.writeText(credentials);
     
     toast.success('Đã mở trang đăng nhập và copy thông tin!');
