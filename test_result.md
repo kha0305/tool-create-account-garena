@@ -263,3 +263,5 @@ agent_communication:
     message: "Đã hoàn thành tích hợp 10minutemail.one vào tool. Backend: Created TenMinuteMail service class, updated models and endpoints. Frontend: Added email provider selector, inbox checking button, and inbox display dialog. Ready for testing."
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETE: All 10minutemail.one integration endpoints working perfectly. Fixed email generation to use authentic 10minutemail.one domains. Both email providers (temp-mail and 10minutemail) working correctly. Account creation, job tracking, inbox checking all functional. Ready for frontend testing or deployment."
+  - agent: "main"
+    message: "User feedback: Accounts không thể login vào Garena vì chỉ là simulated accounts. Added copy buttons for username, email, password để user có thể dễ dàng copy và đăng ký thủ công trên Garena."
