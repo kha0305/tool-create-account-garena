@@ -132,11 +132,10 @@ const Dashboard = () => {
       return;
     }
 
-    const headers = ['Username', 'Email', 'Phone', 'Password', 'Status', 'Created At'];
+    const headers = ['Username', 'Email', 'Password', 'Status', 'Created At'];
     const rows = accounts.map(acc => [
       acc.username,
       acc.email,
-      acc.phone,
       acc.password,
       acc.status,
       new Date(acc.created_at).toLocaleString('vi-VN')
