@@ -237,11 +237,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Tích hợp 10minutemail.one service"
-    - "Endpoint GET /api/accounts/{account_id}/inbox"
-    - "Endpoint POST /api/test-email-provider"
     - "Email provider selector UI"
     - "Check Inbox button and functionality"
+    - "Inbox Dialog UI"
+    - "Display email provider badge in accounts table"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -249,3 +248,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Đã hoàn thành tích hợp 10minutemail.one vào tool. Backend: Created TenMinuteMail service class, updated models and endpoints. Frontend: Added email provider selector, inbox checking button, and inbox display dialog. Ready for testing."
+  - agent: "testing"
+    message: "✅ BACKEND TESTING COMPLETE: All 10minutemail.one integration endpoints working perfectly. Fixed email generation to use authentic 10minutemail.one domains. Both email providers (temp-mail and 10minutemail) working correctly. Account creation, job tracking, inbox checking all functional. Ready for frontend testing or deployment."
