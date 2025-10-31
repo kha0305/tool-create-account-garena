@@ -424,6 +424,61 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Verify Dialog */}
+      <Dialog open={verifyDialog} onOpenChange={setVerifyDialog}>
+        <DialogContent className={theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}>
+          <DialogHeader>
+            <DialogTitle className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>
+              Kiểm tra đăng nhập Garena
+            </DialogTitle>
+            <DialogDescription className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
+              Sẽ mở trang đăng nhập Garena và copy thông tin tài khoản để bạn kiểm tra
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedAccount && (
+            <div className={`space-y-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+              <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                <h4 className="font-semibold mb-3 text-sm uppercase tracking-wide">Thông tin đăng nhập:</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Username:</span>
+                    <span className="font-mono font-semibold">{selectedAccount.username}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Email:</span>
+                    <span className="font-mono text-xs">{selectedAccount.email}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Số điện thoại:</span>
+                    <span className="font-mono font-semibold">{selectedAccount.phone}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Mật khẩu:</span>
+                    <span className="font-mono font-semibold">{selectedAccount.password}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700/30' : 'bg-blue-50 border border-blue-200'}`}>
+                <p className={`text-xs ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>
+                  💡 Thông tin sẽ tự động được copy vào clipboard. Bạn chỉ cần paste vào form đăng nhập.
+                </p>
+              </div>
+
+              <Button 
+                onClick={openGarenaLogin}
+                className={`w-full cyber-button ${theme}`}
+                data-testid="open-garena-login-button"
+              >
+                <ExternalLink className="mr-2" size={18} />
+                Mở trang đăng nhập Garena
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
