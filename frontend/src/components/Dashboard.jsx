@@ -194,6 +194,32 @@ const Dashboard = () => {
       .catch(err => console.error(err));
   };
 
+  // Check inbox for account
+  const handleCheckInbox = async (account) => {
+    setSelectedAccount(account);
+    setCheckingInbox(true);
+    setInboxDialog(true);
+    setInboxMessages([]);
+
+    try {
+      const response = await axios.get(`${API}/accounts/${account.id}/inbox`);
+      setInboxMessages(response.data.messages || []);
+      
+      if (response.data.error || response.data.info) {
+        toast.info(response.data.error || response.data.info);
+      } else if (response.data.messages.length === 0) {
+        toast.info('Inbox trống - chưa có email nào');
+      } else {
+        toast.success(`Tìm thấy ${response.data.messages.length} email`);
+      }
+    } catch (error) {
+      console.error('Error checking inbox:', error);
+      toast.error('Lỗi khi kiểm tra inbox');
+    } finally {
+      setCheckingInbox(false);
+    }
+  };
+
   // Load accounts on mount
   useEffect(() => {
     fetchAccounts();
