@@ -440,9 +440,42 @@ const Dashboard = () => {
                   <tbody>
                     {accounts.map((account, index) => (
                       <tr key={account.id} data-testid={`account-row-${index}`}>
-                        <td className={`font-semibold ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-700'}`} data-testid={`account-username-${index}`}>{account.username}</td>
-                        <td className="text-sm" data-testid={`account-email-${index}`}>{account.email}</td>
-                        <td className="text-sm font-mono" data-testid={`account-password-${index}`}>{account.password}</td>
+                        <td className={`font-semibold ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-700'}`} data-testid={`account-username-${index}`}>
+                          <div className="flex items-center gap-2">
+                            <span>{account.username}</span>
+                            <button
+                              onClick={() => handleCopyToClipboard(account.username, `username-${account.id}`)}
+                              className={`p-1 rounded hover:bg-gray-700/50 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-cyan-400' : 'text-gray-500 hover:text-cyan-600'}`}
+                              title="Sao chép username"
+                            >
+                              {copiedItems[`username-${account.id}`] ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="text-sm" data-testid={`account-email-${index}`}>
+                          <div className="flex items-center gap-2">
+                            <span className="truncate max-w-[200px]">{account.email}</span>
+                            <button
+                              onClick={() => handleCopyToClipboard(account.email, `email-${account.id}`)}
+                              className={`p-1 rounded hover:bg-gray-700/50 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-cyan-400' : 'text-gray-500 hover:text-cyan-600'}`}
+                              title="Sao chép email"
+                            >
+                              {copiedItems[`email-${account.id}`] ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="text-sm font-mono" data-testid={`account-password-${index}`}>
+                          <div className="flex items-center gap-2">
+                            <span>{account.password}</span>
+                            <button
+                              onClick={() => handleCopyToClipboard(account.password, `password-${account.id}`)}
+                              className={`p-1 rounded hover:bg-gray-700/50 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-cyan-400' : 'text-gray-500 hover:text-cyan-600'}`}
+                              title="Sao chép password"
+                            >
+                              {copiedItems[`password-${account.id}`] ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                            </button>
+                          </div>
+                        </td>
                         <td className="text-xs">
                           <span className={`px-2 py-1 rounded text-xs ${theme === 'dark' ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
                             {account.email_provider === '10minutemail' ? '⏱️ 10Min' : '📧 TempMail'}
