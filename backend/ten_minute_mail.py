@@ -57,7 +57,7 @@ class TenMinuteMail:
                             logger.info(f"Found API base URL: {api_base_url}")
                         
                         # Extract email domains
-                        domains_match = re.search(r'"emailDomains":"(\[.*?\])"', script.string)
+                        domains_match = re.search(r'emailDomains:"(\[.*?\])"', script.string)
                         if domains_match:
                             try:
                                 domains_str = domains_match.group(1).replace('\\"', '"')
