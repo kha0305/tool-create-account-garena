@@ -228,6 +228,18 @@ frontend:
       - working: "unknown"
         agent: "main"
         comment: "Added Provider column in accounts table showing icon badges for temp-mail or 10minutemail."
+  
+  - task: "Copy buttons for account credentials"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/Dashboard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Added individual copy buttons next to username, email, and password fields. Shows checkmark icon when copied successfully for 2 seconds."
 
 metadata:
   created_by: "main_agent"
