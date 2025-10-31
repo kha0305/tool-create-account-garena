@@ -39,10 +39,10 @@ class GarenaAccount(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     username: str
     email: str
-    phone: str
     password: str
-    status: str = "created"  # created, verified, failed, pending_verification
+    status: str = "creating"  # creating, created, verified, failed
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    error_message: Optional[str] = None
 
 class CreateAccountRequest(BaseModel):
     quantity: int = Field(ge=1, le=100)
