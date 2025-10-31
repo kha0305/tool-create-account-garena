@@ -273,6 +273,49 @@ async def test_temp_email():
     email = await get_temp_email()
     return {"email": email}
 
+@api_router.post("/accounts/{account_id}/verify")
+async def verify_account_login(account_id: str):
+    """Mark account as ready for verification"""
+    account = await db.garena_accounts.find_one({"id": account_id})
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    
+    # Update status to pending verification
+    await db.garena_accounts.update_one(
+        {"id": account_id},
+        {"$set": {"status": "pending_verification"}}
+    )
+    
+    return {
+        "message": "Account ready for verification",
+        "login_url": f"https://sso.garena.com/universal/login?app_id=10100&redirect_uri=https://account.garena.com/?locale_name=SG&locale=vi-VN",
+        "account": {
+            "username": account["username"],
+            "email": account["email"],
+            "phone": account["phone"],
+            "password": account["password"]
+        }
+    }
+
+@api_router.put("/accounts/{account_id}/status")
+async def update_account_status(account_id: str, status: str):
+    """Update account verification status"""
+    valid_statuses = ["created", "verified", "failed", "pending_verification"]
+    
+    if status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+    
+    result = await db.garena_accounts.update_one(
+        {"id": account_id},
+        {"$set": {"status": status}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Account not found")
+    
+    return {"message": "Status updated successfully", "status": status}
+
 # Include the router in the main app
 app.include_router(api_router)
 
