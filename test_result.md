@@ -249,10 +249,11 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Tích hợp 10minutemail.one service"
+    - "Endpoint GET /api/accounts/{account_id}/inbox"
+    - "Copy buttons for account credentials"
     - "Email provider selector UI"
     - "Check Inbox button and functionality"
-    - "Inbox Dialog UI"
-    - "Display email provider badge in accounts table"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
