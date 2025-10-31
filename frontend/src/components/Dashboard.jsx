@@ -221,6 +221,22 @@ const Dashboard = () => {
     }
   };
 
+  // Copy to clipboard function
+  const handleCopyToClipboard = (text, itemKey) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedItems(prev => ({ ...prev, [itemKey]: true }));
+      toast.success('Đã sao chép!');
+      
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedItems(prev => ({ ...prev, [itemKey]: false }));
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+      toast.error('Lỗi khi sao chép');
+    });
+  };
+
   // Load accounts on mount
   useEffect(() => {
     fetchAccounts();
