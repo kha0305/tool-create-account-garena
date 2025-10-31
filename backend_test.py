@@ -86,8 +86,7 @@ class GarenaBackendTester:
     async def test_email_provider_testing(self, provider: str):
         """Test POST /api/test-email-provider"""
         try:
-            payload = {"provider": provider}
-            response = await self.client.post(f"{BACKEND_URL}/test-email-provider", json=payload)
+            response = await self.client.post(f"{BACKEND_URL}/test-email-provider?provider={provider}")
             
             if response.status_code == 200:
                 data = response.json()
