@@ -414,6 +414,7 @@ const Dashboard = () => {
                       <th>Username</th>
                       <th>Email</th>
                       <th>Mật khẩu</th>
+                      <th>Provider</th>
                       <th>Trạng thái</th>
                       <th>Ngày tạo</th>
                       <th>Thao tác</th>
