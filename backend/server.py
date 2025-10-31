@@ -241,6 +241,10 @@ async def root():
 @api_router.post("/accounts/create")
 async def create_accounts(request: CreateAccountRequest, background_tasks: BackgroundTasks):
     """Start batch account creation"""
+    # Validate email provider
+    if request.email_provider not in ["temp-mail", "10minutemail"]:
+        raise HTTPException(status_code=400, detail="Invalid email provider. Use 'temp-mail' or '10minutemail'")
+    
     # Create job
     job = CreationJob(total=request.quantity)
     job_dict = job.model_dump()
@@ -248,13 +252,14 @@ async def create_accounts(request: CreateAccountRequest, background_tasks: Backg
     
     await db.creation_jobs.insert_one(job_dict)
     
-    # Start background task
-    background_tasks.add_task(process_account_creation, job.job_id, request.quantity)
+    # Start background task with email provider
+    background_tasks.add_task(process_account_creation, job.job_id, request.quantity, request.email_provider)
     
     return {
         "job_id": job.job_id,
-        "message": f"Started creating {request.quantity} accounts",
-        "status": "processing"
+        "message": f"Started creating {request.quantity} accounts with {request.email_provider}",
+        "status": "processing",
+        "email_provider": request.email_provider
     }
 
 @api_router.get("/accounts/job/{job_id}")
