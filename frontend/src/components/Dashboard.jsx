@@ -297,26 +297,43 @@ const Dashboard = () => {
             <CardDescription className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Chọn số lượng và bắt đầu tạo tài khoản</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col md:flex-row gap-4 items-end">
-              <div className="flex-1">
-                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Số lượng tài khoản</label>
-                <Select value={quantity} onValueChange={setQuantity} disabled={creating}>
-                  <SelectTrigger className={`w-full ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100' : 'bg-white border-gray-300 text-gray-900'}`} data-testid="quantity-select">
-                    <SelectValue placeholder="Chọn số lượng" />
-                  </SelectTrigger>
-                  <SelectContent className={theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}>
-                    {quantities.map(q => (
-                      <SelectItem key={q} value={q.toString()} data-testid={`quantity-option-${q}`} className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>
-                        {q} tài khoản
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex-1">
+                  <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Số lượng tài khoản</label>
+                  <Select value={quantity} onValueChange={setQuantity} disabled={creating}>
+                    <SelectTrigger className={`w-full ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100' : 'bg-white border-gray-300 text-gray-900'}`} data-testid="quantity-select">
+                      <SelectValue placeholder="Chọn số lượng" />
+                    </SelectTrigger>
+                    <SelectContent className={theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}>
+                      {quantities.map(q => (
+                        <SelectItem key={q} value={q.toString()} data-testid={`quantity-option-${q}`} className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>
+                          {q} tài khoản
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Dịch vụ Email</label>
+                  <Select value={emailProvider} onValueChange={setEmailProvider} disabled={creating}>
+                    <SelectTrigger className={`w-full ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100' : 'bg-white border-gray-300 text-gray-900'}`} data-testid="email-provider-select">
+                      <SelectValue placeholder="Chọn dịch vụ email" />
+                    </SelectTrigger>
+                    <SelectContent className={theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}>
+                      {emailProviders.map(provider => (
+                        <SelectItem key={provider.id} value={provider.id} data-testid={`provider-option-${provider.id}`} className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>
+                          {provider.icon} {provider.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <Button
                 onClick={handleCreateAccounts}
                 disabled={creating}
-                className={`cyber-button ${theme} h-10 min-w-[200px]`}
+                className={`cyber-button ${theme} h-10 w-full md:w-auto`}
                 data-testid="create-accounts-button"
               >
                 {creating ? (
