@@ -368,6 +368,103 @@ async def update_account_status(account_id: str, status: str):
     
     return {"message": "Status updated successfully", "status": status}
 
+@api_router.get("/email-providers")
+async def get_email_providers():
+    """Get list of available email providers"""
+    return {
+        "providers": [
+            {
+                "id": "temp-mail",
+                "name": "Temp Mail API",
+                "description": "Official temp-mail.io API service",
+                "reliable": True
+            },
+            {
+                "id": "10minutemail",
+                "name": "10 Minute Mail",
+                "description": "10minutemail.one service",
+                "reliable": True,
+                "features": ["inbox_checking"]
+            }
+        ]
+    }
+
+@api_router.get("/accounts/{account_id}/inbox")
+async def check_account_inbox(account_id: str):
+    """Check inbox for account's temporary email"""
+    account = await db.garena_accounts.find_one({"id": account_id})
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    
+    email_provider = account.get('email_provider', 'temp-mail')
+    email_session = account.get('email_session_data')
+    
+    if not email_session:
+        return {
+            "account_id": account_id,
+            "email": account.get('email'),
+            "provider": email_provider,
+            "messages": [],
+            "error": "No session data available for this email"
+        }
+    
+    # Check inbox based on provider
+    messages = []
+    if email_provider == "10minutemail":
+        try:
+            messages = await ten_minute_mail_service.check_inbox(email_session)
+        except Exception as e:
+            logging.error(f"Error checking 10minutemail inbox: {e}")
+            return {
+                "account_id": account_id,
+                "email": account.get('email'),
+                "provider": email_provider,
+                "messages": [],
+                "error": str(e)
+            }
+    else:
+        # Temp-mail.io doesn't have easy inbox checking in free tier
+        return {
+            "account_id": account_id,
+            "email": account.get('email'),
+            "provider": email_provider,
+            "messages": [],
+            "info": "Inbox checking not available for temp-mail provider"
+        }
+    
+    return {
+        "account_id": account_id,
+        "email": account.get('email'),
+        "provider": email_provider,
+        "messages": messages,
+        "count": len(messages)
+    }
+
+@api_router.post("/test-email-provider")
+async def test_email_provider(provider: str):
+    """Test email provider functionality"""
+    if provider not in ["temp-mail", "10minutemail"]:
+        raise HTTPException(status_code=400, detail="Invalid provider. Use 'temp-mail' or '10minutemail'")
+    
+    try:
+        email_data = await get_temp_email(provider)
+        
+        return {
+            "success": True,
+            "provider": provider,
+            "email": email_data['email'],
+            "has_session": email_data.get('session_data') is not None,
+            "message": f"Successfully generated email from {provider}"
+        }
+    except Exception as e:
+        logging.error(f"Error testing provider {provider}: {e}")
+        return {
+            "success": False,
+            "provider": provider,
+            "error": str(e)
+        }
+
 # Include the router in the main app
 app.include_router(api_router)
 
