@@ -97,7 +97,8 @@ const Dashboard = () => {
     setCreating(true);
     try {
       const response = await axios.post(`${API}/accounts/create`, {
-        quantity: parseInt(quantity)
+        quantity: parseInt(quantity),
+        email_provider: emailProvider
       });
 
       toast.success(`Đã bắt đầu tạo ${quantity} tài khoản`);
