@@ -440,10 +440,6 @@ const Dashboard = () => {
                     <span className="font-mono text-xs">{selectedAccount.email}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Số điện thoại:</span>
-                    <span className="font-mono font-semibold">{selectedAccount.phone}</span>
-                  </div>
-                  <div className="flex justify-between">
                     <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Mật khẩu:</span>
                     <span className="font-mono font-semibold">{selectedAccount.password}</span>
                   </div>
