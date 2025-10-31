@@ -196,18 +196,9 @@ const Dashboard = () => {
         onClick={toggleTheme} 
         className={`theme-toggle ${theme}`}
         data-testid="theme-toggle-button"
+        title={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
       >
-        {theme === 'dark' ? (
-          <>
-            <Sun size={20} />
-            <span>Sáng</span>
-          </>
-        ) : (
-          <>
-            <Moon size={20} />
-            <span>Tối</span>
-          </>
-        )}
+        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
       </button>
 
       {/* Header */}
