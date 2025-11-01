@@ -158,7 +158,7 @@ async def create_garena_account(username: str, email: str, phone: str, password:
         "password": password
     }
 
-async def process_account_creation(job_id: str, quantity: int, email_provider: str = "temp-mail"):
+async def process_account_creation(job_id: str, quantity: int, email_provider: str = "mail.tm"):
     """Background task to create accounts"""
     job_data = await db.creation_jobs.find_one({"job_id": job_id})
     if not job_data:
