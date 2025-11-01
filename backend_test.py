@@ -191,6 +191,155 @@ class GarenaBackendTester:
         except Exception as e:
             self.log_test("List All Accounts", False, f"Request error: {str(e)}")
     
+    def validate_garena_password(self, password: str) -> Dict[str, bool]:
+        """
+        Validate password against Garena requirements
+        Returns dict with validation results for each requirement
+        """
+        return {
+            "length_valid": 8 <= len(password) <= 16,
+            "has_lowercase": bool(re.search(r'[a-z]', password)),
+            "has_uppercase": bool(re.search(r'[A-Z]', password)),
+            "has_digit": bool(re.search(r'[0-9]', password)),
+            "has_symbol": bool(re.search(r'[!@#$%^&*]', password))
+        }
+    
+    def is_password_valid(self, password: str) -> bool:
+        """Check if password meets ALL Garena requirements"""
+        validation = self.validate_garena_password(password)
+        return all(validation.values())
+    
+    async def test_password_generation_direct(self):
+        """Test password generation by creating multiple accounts and checking passwords"""
+        print("\n🔐 Testing Password Generation (Garena Requirements)")
+        print("Requirements: 8-16 chars, lowercase, uppercase, digit, symbol")
+        
+        # Test multiple account creations to get password samples
+        passwords_tested = []
+        failed_passwords = []
+        
+        try:
+            # Create 10 accounts to test password generation
+            payload = {"quantity": 10, "email_provider": "temp-mail"}
+            response = await self.client.post(f"{BACKEND_URL}/accounts/create", json=payload)
+            
+            if response.status_code == 200:
+                data = response.json()
+                job_id = data.get("job_id")
+                
+                if job_id:
+                    # Wait for job completion
+                    await asyncio.sleep(5)
+                    
+                    # Get job status to retrieve created accounts
+                    job_response = await self.client.get(f"{BACKEND_URL}/accounts/job/{job_id}")
+                    
+                    if job_response.status_code == 200:
+                        job_data = job_response.json()
+                        accounts = job_data.get("accounts", [])
+                        
+                        for account in accounts:
+                            password = account.get("password")
+                            if password:
+                                passwords_tested.append(password)
+                                validation = self.validate_garena_password(password)
+                                
+                                if not self.is_password_valid(password):
+                                    failed_passwords.append({
+                                        "password": password,
+                                        "validation": validation
+                                    })
+                        
+                        # Log results
+                        if passwords_tested:
+                            success_count = len(passwords_tested) - len(failed_passwords)
+                            
+                            if len(failed_passwords) == 0:
+                                self.log_test("Password Generation Validation", True, 
+                                            f"All {len(passwords_tested)} passwords meet Garena requirements")
+                            else:
+                                details = f"{success_count}/{len(passwords_tested)} passwords valid. Failed passwords: {[p['password'] for p in failed_passwords[:3]]}"
+                                self.log_test("Password Generation Validation", False, details, 
+                                            {"failed_validations": failed_passwords[:3]})
+                        else:
+                            self.log_test("Password Generation Validation", False, 
+                                        "No passwords found in created accounts")
+                    else:
+                        self.log_test("Password Generation Validation", False, 
+                                    f"Failed to get job status: HTTP {job_response.status_code}")
+                else:
+                    self.log_test("Password Generation Validation", False, 
+                                "No job_id returned from account creation")
+            else:
+                self.log_test("Password Generation Validation", False, 
+                            f"Account creation failed: HTTP {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Password Generation Validation", False, f"Test error: {str(e)}")
+        
+        # Print detailed password analysis
+        if passwords_tested:
+            print(f"\n📋 Password Analysis ({len(passwords_tested)} samples):")
+            for i, password in enumerate(passwords_tested[:5]):  # Show first 5
+                validation = self.validate_garena_password(password)
+                status = "✅" if self.is_password_valid(password) else "❌"
+                print(f"  {i+1}. {password} {status}")
+                print(f"     Length: {len(password)} chars, Lower: {validation['has_lowercase']}, "
+                      f"Upper: {validation['has_uppercase']}, Digit: {validation['has_digit']}, "
+                      f"Symbol: {validation['has_symbol']}")
+    
+    async def test_password_length_consistency(self):
+        """Test that all generated passwords have consistent length (should be 12)"""
+        try:
+            # Create a few accounts to check password length consistency
+            payload = {"quantity": 5, "email_provider": "temp-mail"}
+            response = await self.client.post(f"{BACKEND_URL}/accounts/create", json=payload)
+            
+            if response.status_code == 200:
+                data = response.json()
+                job_id = data.get("job_id")
+                
+                if job_id:
+                    await asyncio.sleep(3)
+                    
+                    job_response = await self.client.get(f"{BACKEND_URL}/accounts/job/{job_id}")
+                    
+                    if job_response.status_code == 200:
+                        job_data = job_response.json()
+                        accounts = job_data.get("accounts", [])
+                        
+                        password_lengths = []
+                        for account in accounts:
+                            password = account.get("password")
+                            if password:
+                                password_lengths.append(len(password))
+                        
+                        if password_lengths:
+                            unique_lengths = set(password_lengths)
+                            expected_length = 12  # Based on code analysis
+                            
+                            if len(unique_lengths) == 1 and expected_length in unique_lengths:
+                                self.log_test("Password Length Consistency", True, 
+                                            f"All passwords have consistent length: {expected_length} characters")
+                            else:
+                                self.log_test("Password Length Consistency", False, 
+                                            f"Inconsistent lengths found: {unique_lengths}, expected: {expected_length}")
+                        else:
+                            self.log_test("Password Length Consistency", False, 
+                                        "No passwords found to test length")
+                    else:
+                        self.log_test("Password Length Consistency", False, 
+                                    f"Failed to get job status: HTTP {job_response.status_code}")
+                else:
+                    self.log_test("Password Length Consistency", False, 
+                                "No job_id returned from account creation")
+            else:
+                self.log_test("Password Length Consistency", False, 
+                            f"Account creation failed: HTTP {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Password Length Consistency", False, f"Test error: {str(e)}")
+
     async def test_inbox_checking(self):
         """Test GET /api/accounts/{account_id}/inbox"""
         if not self.created_accounts:
