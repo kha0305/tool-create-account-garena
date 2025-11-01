@@ -13,7 +13,7 @@ import httpx
 import random
 import string
 import asyncio
-from ten_minute_mail import get_10minute_email_with_session, ten_minute_mail_service
+from mail_tm_service import MailTmService
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
