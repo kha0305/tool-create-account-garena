@@ -227,9 +227,9 @@ async def root():
 @api_router.post("/accounts/create")
 async def create_accounts(request: CreateAccountRequest, background_tasks: BackgroundTasks):
     """Start batch account creation"""
-    # Validate email provider
-    if request.email_provider not in ["temp-mail", "10minutemail"]:
-        raise HTTPException(status_code=400, detail="Invalid email provider. Use 'temp-mail' or '10minutemail'")
+    # Only mail.tm is supported now
+    if request.email_provider != "mail.tm":
+        request.email_provider = "mail.tm"  # Force mail.tm
     
     # Create job
     job = CreationJob(total=request.quantity)
