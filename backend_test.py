@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Backend Test Suite for Garena Account Creator
-Tests the 10minutemail.one integration and all API endpoints
+Tests the Mail.tm integration and all API endpoints
 """
 
 import asyncio
