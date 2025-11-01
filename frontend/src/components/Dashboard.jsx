@@ -225,6 +225,64 @@ const Dashboard = () => {
     }
   };
 
+  // View email content
+  const handleViewEmailContent = async (message) => {
+    setSelectedEmail(null);
+    setLoadingEmailContent(true);
+    setEmailContentDialog(true);
+    setEmailViewMode('text'); // Default to text view
+
+    try {
+      const response = await axios.get(`${API}/accounts/${selectedAccount.id}/inbox/${message.id}`);
+      setSelectedEmail(response.data.message);
+      toast.success('Đã tải nội dung email');
+    } catch (error) {
+      console.error('Error loading email content:', error);
+      toast.error('Lỗi khi tải nội dung email');
+    } finally {
+      setLoadingEmailContent(false);
+    }
+  };
+
+  // Export accounts
+  const handleExport = async (format) => {
+    if (accounts.length === 0) {
+      toast.error('Không có tài khoản để xuất');
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API}/accounts/export/${format}`, {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Extract filename from Content-Disposition header or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `ACCOUNTS_${accounts.length}.${format}`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=([^;]+)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success(`Đã xuất file ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error('Error exporting:', error);
+      toast.error(`Lỗi khi xuất file ${format.toUpperCase()}`);
+    }
+  };
+
   // Copy to clipboard function
   const handleCopyToClipboard = (text, itemKey) => {
     navigator.clipboard.writeText(text).then(() => {
