@@ -98,9 +98,16 @@ class MailTmService:
                         'created_at': datetime.utcnow().isoformat()
                     }
                 }
+            elif response.status_code == 429:
+                raise Exception(f"Rate limit exceeded (429): Too many requests to mail.tm API. Please wait before creating more accounts.")
             else:
                 raise Exception(f"Failed to create account: {response.status_code} - {response.text}")
                 
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                raise Exception(f"Rate limit exceeded (429): Too many requests to mail.tm API")
+            print(f"HTTP Error creating mail.tm account: {e}")
+            raise
         except Exception as e:
             print(f"Error creating mail.tm account: {e}")
             raise
