@@ -21,7 +21,7 @@ class MailTmService:
         """Close HTTP client when object is destroyed"""
         try:
             self.client.close()
-        except:
+        except Exception:
             pass
     
     async def get_domains(self) -> List[str]:
