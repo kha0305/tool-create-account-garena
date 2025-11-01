@@ -159,7 +159,7 @@ async def create_garena_account(username: str, email: str, phone: str, password:
 
 async def process_account_creation(job_id: str, quantity: int, email_provider: str = "mail.tm"):
     """Background task to create accounts"""
-    job_data = await db.creation_jobs.find_one({"job_id": job_id})
+    job_data = await db.find_job(job_id)
     if not job_data:
         return
     
@@ -190,31 +190,31 @@ async def process_account_creation(job_id: str, quantity: int, email_provider: s
                 
                 account_dict = account.model_dump()
                 account_dict['created_at'] = account_dict['created_at'].isoformat()
-                await db.garena_accounts.insert_one(account_dict)
+                await db.insert_account(account_dict)
                 
                 # Update job
-                await db.creation_jobs.update_one(
-                    {"job_id": job_id},
+                await db.update_job(
+                    job_id,
                     {
                         "$inc": {"completed": 1},
                         "$push": {"accounts": account.id}
                     }
                 )
             else:
-                await db.creation_jobs.update_one(
-                    {"job_id": job_id},
+                await db.update_job(
+                    job_id,
                     {"$inc": {"failed": 1}}
                 )
         except Exception as e:
             logging.error(f"Error creating account: {e}")
-            await db.creation_jobs.update_one(
-                {"job_id": job_id},
+            await db.update_job(
+                job_id,
                 {"$inc": {"failed": 1}}
             )
     
     # Mark job as completed
-    await db.creation_jobs.update_one(
-        {"job_id": job_id},
+    await db.update_job(
+        job_id,
         {"$set": {"status": "completed"}}
     )
 
