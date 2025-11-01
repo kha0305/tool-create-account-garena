@@ -188,6 +188,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ WORKING: CSV export endpoint perfect. Tested with 5 accounts - correct headers 'Username,Email,Password,Phone,Status,Provider,Created At', proper filename 'ACCOUNTS_5.csv', correct CSV structure and content-disposition headers. All required fields present and properly formatted."
+      - working: true
+        agent: "testing"
+        comment: "✅ RE-TESTED LOCAL STABILITY: CSV export confirmed working perfectly with local MySQL setup. Correct headers, proper CSV structure, and filename generation all functioning correctly."
 
   - task: "Export XLSX endpoint"
     implemented: true
