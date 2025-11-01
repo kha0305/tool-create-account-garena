@@ -99,17 +99,29 @@ const Dashboard = () => {
       return;
     }
 
+    const qty = parseInt(quantity);
+    
+    // Warning for large batches
+    if (qty > 10) {
+      toast.warning('Tạo nhiều tài khoản có thể mất thời gian do giới hạn API. Vui lòng kiên nhẫn!', {
+        duration: 5000
+      });
+    }
+
     setCreating(true);
     try {
       const response = await axios.post(`${API}/accounts/create`, {
-        quantity: parseInt(quantity),
+        quantity: qty,
         email_provider: emailProvider
       });
 
-      toast.success(`Đã bắt đầu tạo ${quantity} tài khoản`);
+      const estimatedTime = qty * 3; // Rough estimate: 3 seconds per account
+      toast.success(`Đã bắt đầu tạo ${qty} tài khoản (dự kiến ~${Math.ceil(estimatedTime / 60)} phút)`, {
+        duration: 4000
+      });
       pollJobStatus(response.data.job_id);
     } catch (error) {
-      toast.error('Lỗi khi tạo tài khoản');
+      toast.error('Lỗi khi tạo tài khoản. Vui lòng thử lại!');
       setCreating(false);
       console.error(error);
     }
