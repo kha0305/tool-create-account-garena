@@ -131,15 +131,18 @@ backend:
 
   - task: "API endpoint để xem chi tiết email"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Added GET /api/accounts/{account_id}/inbox/{message_id} endpoint to fetch full email content including text, html, attachments. Uses mail_tm_service.get_message_content() method with JWT token authentication."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: Email content endpoint correctly implemented. Handles all error cases properly: returns 404 for invalid account_id, returns 400 for accounts without session data, returns 404/500 for invalid message_id. Endpoint structure and authentication flow working correctly with mail.tm JWT tokens."
 
   - task: "Export TXT endpoint"
     implemented: true
