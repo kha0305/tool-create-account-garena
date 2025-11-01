@@ -657,7 +657,8 @@ const Dashboard = () => {
                 {inboxMessages.map((message, index) => (
                   <div 
                     key={index}
-                    className={`p-4 rounded-lg border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
+                    onClick={() => handleViewEmailContent(message)}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${theme === 'dark' ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
@@ -669,14 +670,14 @@ const Dashboard = () => {
                         </div>
                       </div>
                       <div className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
-                        {message.received || message.date || 'Just now'}
+                        {message.received || message.created_at || 'Just now'}
                       </div>
                     </div>
-                    {message.body && (
+                    {message.intro && (
                       <div className={`text-sm mt-2 p-3 rounded ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
                         <div className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
-                          {message.body.substring(0, 200)}
-                          {message.body.length > 200 && '...'}
+                          {message.intro.substring(0, 150)}
+                          {message.intro.length > 150 && '...'}
                         </div>
                       </div>
                     )}
