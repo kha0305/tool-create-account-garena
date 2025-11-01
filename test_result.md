@@ -449,3 +449,30 @@ agent_communication:
     6. ❌ Rate Limiting: Mail.tm returns 429 'Too Many Requests' when creating accounts too quickly
 
     **SOLUTION:** Account creation works fine when done individually or with delays between requests. The 'cannot create account' issue is due to hitting mail.tm's rate limits, not a system bug."
+  - agent: "user"
+    message: "Test lại toàn bộ hệ thống sau khi cải thiện để chạy local ổn định"
+  - agent: "testing"
+    message: "✅ COMPREHENSIVE LOCAL SYSTEM TESTING COMPLETE - All Requirements Met:
+
+    **TESTED REQUIREMENTS:**
+    1. ✅ Create 3 Accounts with Rate Limiting Protection: SUCCESS - All 3 accounts created in 46.0 seconds
+    2. ✅ Verify Delays Between Account Creation: CONFIRMED - 2-3 second delays implemented, visible in logs
+    3. ✅ Check Logging Displays Correctly: VERIFIED - Rate limiting warnings, retry logic, and success messages all logging properly
+    4. ✅ Test Export TXT/CSV/XLSX: ALL WORKING - Correct formats, filenames, and headers
+    5. ✅ Test Inbox Checking: WORKING - JWT authentication successful, inbox accessible
+
+    **DETAILED RESULTS:**
+    - **Account Creation Performance:** 46.0 seconds for 3 accounts (15.3s average per account)
+    - **Rate Limiting & Retry Logic:** WORKING - Exponential backoff (5s, 10s, 15s), 3 retry attempts per account
+    - **Password Generation:** ALL COMPLIANT - 12 chars, mixed case, digits, symbols (Garena requirements)
+    - **Mail.tm Integration:** FULLY FUNCTIONAL - JWT tokens, 2200freefonts.com domains, inbox access
+    - **Export Functionality:** ALL FORMATS WORKING - TXT (pipe-delimited), CSV (proper headers), XLSX (styled Excel)
+    - **Database Storage:** MYSQL WORKING - All accounts stored with complete session data
+
+    **BACKEND LOGS ANALYSIS:**
+    - Rate limiting properly detected and handled (HTTP 429 responses)
+    - Retry logic with exponential backoff working correctly
+    - Account creation delays (2-3s) implemented between requests
+    - All success/failure states properly logged
+
+    **SYSTEM STABILITY CONFIRMED:** Local setup running stable on MySQL with all features operational."
