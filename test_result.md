@@ -220,7 +220,7 @@ backend:
         comment: "✅ WORKING: Both providers tested successfully. temp-mail generates emails from temp-mail.io domains. 10minutemail generates emails from authentic 10minutemail.one domains (zorrag.com, witusp.com, obeamb.com)."
 
 frontend:
-  - task: "Email provider selector UI"
+  - task: "Cập nhật UI để sử dụng mail.tm"
     implemented: true
     working: "unknown"
     file: "/app/frontend/src/components/Dashboard.jsx"
@@ -230,27 +230,7 @@ frontend:
     status_history:
       - working: "unknown"
         agent: "main"
-        comment: "Added Select dropdown for choosing email provider (Temp Mail API or 10 Minute Mail) in account creation panel."
-  
-  - task: "Check Inbox button and functionality"
-    implemented: true
-    working: "unknown"
-    file: "/app/frontend/src/components/Dashboard.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "unknown"
-        agent: "main"
-        comment: "Added Inbox button for accounts created with 10minutemail. Calls GET /api/accounts/{id}/inbox endpoint."
-  
-  - task: "Inbox Dialog UI"
-    implemented: true
-    working: "unknown"
-    file: "/app/frontend/src/components/Dashboard.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
+        comment: "Updated email provider selector to only show Mail.tm. Changed default provider to mail.tm. Updated provider badge display to show Mail.tm icon. Removed conditional inbox button - now shows for all accounts since mail.tm supports inbox checking."
     status_history:
       - working: "unknown"
         agent: "main"
