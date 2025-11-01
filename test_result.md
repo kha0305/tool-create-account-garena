@@ -102,9 +102,33 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Lấy email ảo từ website https://10minutemail.one/ và hoàn thiện tool tạo tài khoản Garena"
+user_problem_statement: "Thay thế hệ thống email providers bằng mail.tm vì các provider cũ không nhận được email"
 
 backend:
+  - task: "Tích hợp Mail.tm service"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/mail_tm_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Created MailTmService class using mail.tm API. Methods: create_account(), get_token(), get_messages(), get_message_content(), delete_account(). Uses httpx for API calls to api.mail.tm with full JWT authentication."
+
+  - task: "Cập nhật server.py để sử dụng mail.tm"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Replaced temp-mail and 10minutemail with mail.tm throughout server.py. Updated get_temp_email() function, email provider endpoints, and inbox checking logic to use MailTmService."
+
   - task: "Password generation theo yêu cầu Garena"
     implemented: true
     working: true
