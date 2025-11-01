@@ -164,9 +164,18 @@ async def create_garena_account(username: str, email: str, phone: str, password:
 
 async def process_account_creation(job_id: str, quantity: int, email_provider: str = "mail.tm"):
     """Background task to create accounts with rate limiting protection"""
+    global last_rate_limit_time
+    
     job_data = await db.find_job(job_id)
     if not job_data:
         return
+    
+    # Check if we recently hit rate limit
+    time_since_rate_limit = time.time() - last_rate_limit_time
+    if time_since_rate_limit < RATE_LIMIT_COOLDOWN:
+        wait_time = int(RATE_LIMIT_COOLDOWN - time_since_rate_limit)
+        logging.warning(f"⏰ Recent rate limit detected, waiting {wait_time}s before starting...")
+        await asyncio.sleep(wait_time)
     
     for i in range(quantity):
         max_retries = 3
