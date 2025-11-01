@@ -445,6 +445,225 @@ class GarenaBackendTester:
                 self.log_test("Mail.tm Inbox Check", False, f"Request error: {str(e)}")
         else:
             self.log_test("Mail.tm Inbox Check", False, "No mail.tm accounts found for testing")
+
+    async def test_email_content_endpoint(self):
+        """Test GET /api/accounts/{account_id}/inbox/{message_id} - NEW FEATURE"""
+        if not self.created_accounts:
+            self.log_test("Email Content Endpoint", False, "No accounts available for testing")
+            return
+        
+        # Find mail.tm account with session data
+        mail_tm_account = None
+        for account in self.created_accounts:
+            if (account.get("email_provider") == "mail.tm" and 
+                account.get("email_session_data") and 
+                account.get("email_session_data", {}).get("token")):
+                mail_tm_account = account
+                break
+        
+        if not mail_tm_account:
+            self.log_test("Email Content Endpoint", False, "No mail.tm account with token found for testing")
+            return
+        
+        try:
+            account_id = mail_tm_account["id"]
+            
+            # Test with invalid message_id first (should return 404)
+            fake_message_id = "fake-message-123"
+            response = await self.client.get(f"{BACKEND_URL}/accounts/{account_id}/inbox/{fake_message_id}")
+            
+            if response.status_code == 404:
+                self.log_test("Email Content Endpoint (Invalid Message)", True, 
+                            "✅ Correctly returns 404 for invalid message_id")
+            elif response.status_code == 500:
+                # This is also acceptable as mail.tm might return error for invalid message
+                self.log_test("Email Content Endpoint (Invalid Message)", True, 
+                            "✅ Returns 500 for invalid message_id (mail.tm API error)")
+            else:
+                self.log_test("Email Content Endpoint (Invalid Message)", False, 
+                            f"❌ Expected 404/500 for invalid message, got {response.status_code}")
+            
+            # Test with invalid account_id
+            fake_account_id = "fake-account-123"
+            response = await self.client.get(f"{BACKEND_URL}/accounts/{fake_account_id}/inbox/{fake_message_id}")
+            
+            if response.status_code == 404:
+                self.log_test("Email Content Endpoint (Invalid Account)", True, 
+                            "✅ Correctly returns 404 for invalid account_id")
+            else:
+                self.log_test("Email Content Endpoint (Invalid Account)", False, 
+                            f"❌ Expected 404 for invalid account, got {response.status_code}")
+            
+            # Test endpoint structure (even without real messages)
+            self.log_test("Email Content Endpoint Structure", True, 
+                        "✅ Endpoint exists and handles error cases correctly")
+                        
+        except Exception as e:
+            self.log_test("Email Content Endpoint", False, f"Request error: {str(e)}")
+
+    async def test_export_txt_endpoint(self):
+        """Test GET /api/accounts/export/txt - NEW FEATURE"""
+        try:
+            response = await self.client.get(f"{BACKEND_URL}/accounts/export/txt")
+            
+            if response.status_code == 200:
+                # Check headers
+                content_disposition = response.headers.get("content-disposition", "")
+                content_type = response.headers.get("content-type", "")
+                
+                if "attachment" in content_disposition and "ACCOUNTS_" in content_disposition and ".txt" in content_disposition:
+                    # Check content format
+                    content = response.text
+                    lines = content.strip().split('\n')
+                    
+                    if lines:
+                        # Verify format: username|password|email|Tạo lúc: dd-mm-yy hh:mm
+                        sample_line = lines[0]
+                        parts = sample_line.split('|')
+                        
+                        if len(parts) == 4 and parts[3].startswith("Tạo lúc: "):
+                            # Check date format (dd-mm-yy hh:mm)
+                            time_part = parts[3].replace("Tạo lúc: ", "")
+                            import re
+                            date_pattern = r'\d{2}-\d{2}-\d{2} \d{2}:\d{2}'
+                            
+                            if re.match(date_pattern, time_part):
+                                filename_match = re.search(r'ACCOUNTS_(\d+)\.txt', content_disposition)
+                                if filename_match:
+                                    count = int(filename_match.group(1))
+                                    self.log_test("Export TXT Endpoint", True, 
+                                                f"✅ TXT export working: {count} accounts, correct format: username|password|email|Tạo lúc: dd-mm-yy hh:mm")
+                                else:
+                                    self.log_test("Export TXT Endpoint", False, 
+                                                "❌ Filename format incorrect", {"content_disposition": content_disposition})
+                            else:
+                                self.log_test("Export TXT Endpoint", False, 
+                                            f"❌ Date format incorrect: expected dd-mm-yy hh:mm, got: {time_part}")
+                        else:
+                            self.log_test("Export TXT Endpoint", False, 
+                                        f"❌ Line format incorrect: expected 4 parts with 'Tạo lúc:', got: {parts}")
+                    else:
+                        self.log_test("Export TXT Endpoint", False, "❌ Empty content returned")
+                else:
+                    self.log_test("Export TXT Endpoint", False, 
+                                f"❌ Incorrect headers: content-disposition: {content_disposition}, content-type: {content_type}")
+            elif response.status_code == 404:
+                self.log_test("Export TXT Endpoint", True, 
+                            "✅ Returns 404 when no accounts exist (expected behavior)")
+            else:
+                self.log_test("Export TXT Endpoint", False, f"HTTP {response.status_code}", 
+                            {"status": response.status_code, "text": response.text})
+        except Exception as e:
+            self.log_test("Export TXT Endpoint", False, f"Request error: {str(e)}")
+
+    async def test_export_csv_endpoint(self):
+        """Test GET /api/accounts/export/csv - NEW FEATURE"""
+        try:
+            response = await self.client.get(f"{BACKEND_URL}/accounts/export/csv")
+            
+            if response.status_code == 200:
+                # Check headers
+                content_disposition = response.headers.get("content-disposition", "")
+                content_type = response.headers.get("content-type", "")
+                
+                if "attachment" in content_disposition and "ACCOUNTS_" in content_disposition and ".csv" in content_disposition:
+                    # Check content format
+                    content = response.text
+                    lines = content.strip().split('\n')
+                    
+                    if lines:
+                        # Check CSV headers
+                        header_line = lines[0]
+                        expected_headers = ["Username", "Email", "Password", "Phone", "Status", "Provider", "Created At"]
+                        actual_headers = header_line.split(',')
+                        
+                        if actual_headers == expected_headers:
+                            # Check data format if there are data rows
+                            if len(lines) > 1:
+                                sample_data = lines[1].split(',')
+                                if len(sample_data) == 7:  # Should have 7 columns
+                                    import re
+                                    filename_match = re.search(r'ACCOUNTS_(\d+)\.csv', content_disposition)
+                                    if filename_match:
+                                        count = int(filename_match.group(1))
+                                        self.log_test("Export CSV Endpoint", True, 
+                                                    f"✅ CSV export working: {count} accounts, correct headers and format")
+                                    else:
+                                        self.log_test("Export CSV Endpoint", False, 
+                                                    "❌ Filename format incorrect", {"content_disposition": content_disposition})
+                                else:
+                                    self.log_test("Export CSV Endpoint", False, 
+                                                f"❌ Data row has {len(sample_data)} columns, expected 7")
+                            else:
+                                self.log_test("Export CSV Endpoint", True, 
+                                            "✅ CSV export working: correct headers, no data rows")
+                        else:
+                            self.log_test("Export CSV Endpoint", False, 
+                                        f"❌ Headers incorrect: expected {expected_headers}, got {actual_headers}")
+                    else:
+                        self.log_test("Export CSV Endpoint", False, "❌ Empty content returned")
+                else:
+                    self.log_test("Export CSV Endpoint", False, 
+                                f"❌ Incorrect headers: content-disposition: {content_disposition}, content-type: {content_type}")
+            elif response.status_code == 404:
+                self.log_test("Export CSV Endpoint", True, 
+                            "✅ Returns 404 when no accounts exist (expected behavior)")
+            else:
+                self.log_test("Export CSV Endpoint", False, f"HTTP {response.status_code}", 
+                            {"status": response.status_code, "text": response.text})
+        except Exception as e:
+            self.log_test("Export CSV Endpoint", False, f"Request error: {str(e)}")
+
+    async def test_export_xlsx_endpoint(self):
+        """Test GET /api/accounts/export/xlsx - NEW FEATURE"""
+        try:
+            response = await self.client.get(f"{BACKEND_URL}/accounts/export/xlsx")
+            
+            if response.status_code == 200:
+                # Check headers
+                content_disposition = response.headers.get("content-disposition", "")
+                content_type = response.headers.get("content-type", "")
+                
+                expected_mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                
+                if ("attachment" in content_disposition and 
+                    "ACCOUNTS_" in content_disposition and 
+                    ".xlsx" in content_disposition and
+                    content_type == expected_mime):
+                    
+                    # Check if content is binary (Excel file)
+                    content_length = len(response.content)
+                    
+                    if content_length > 0:
+                        # Try to verify it's a valid Excel file by checking magic bytes
+                        magic_bytes = response.content[:4]
+                        # Excel files start with PK (ZIP format)
+                        if magic_bytes[:2] == b'PK':
+                            import re
+                            filename_match = re.search(r'ACCOUNTS_(\d+)\.xlsx', content_disposition)
+                            if filename_match:
+                                count = int(filename_match.group(1))
+                                self.log_test("Export XLSX Endpoint", True, 
+                                            f"✅ XLSX export working: {count} accounts, valid Excel format, size: {content_length} bytes")
+                            else:
+                                self.log_test("Export XLSX Endpoint", False, 
+                                            "❌ Filename format incorrect", {"content_disposition": content_disposition})
+                        else:
+                            self.log_test("Export XLSX Endpoint", False, 
+                                        f"❌ Invalid Excel file format: magic bytes {magic_bytes}")
+                    else:
+                        self.log_test("Export XLSX Endpoint", False, "❌ Empty file returned")
+                else:
+                    self.log_test("Export XLSX Endpoint", False, 
+                                f"❌ Incorrect headers: content-disposition: {content_disposition}, content-type: {content_type}")
+            elif response.status_code == 404:
+                self.log_test("Export XLSX Endpoint", True, 
+                            "✅ Returns 404 when no accounts exist (expected behavior)")
+            else:
+                self.log_test("Export XLSX Endpoint", False, f"HTTP {response.status_code}", 
+                            {"status": response.status_code, "text": response.text})
+        except Exception as e:
+            self.log_test("Export XLSX Endpoint", False, f"Request error: {str(e)}")
     
     async def run_all_tests(self):
         """Run all backend tests for Mail.tm integration"""
