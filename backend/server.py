@@ -43,7 +43,7 @@ class GarenaAccount(BaseModel):
     password: str
     phone: Optional[str] = None
     status: str = "creating"  # creating, created, verified, failed
-    email_provider: str = "temp-mail"  # temp-mail or 10minutemail
+    email_provider: str = "mail.tm"  # Using mail.tm for temporary emails
     email_session_data: Optional[Dict[str, Any]] = None  # Session data for email checking
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     error_message: Optional[str] = None
