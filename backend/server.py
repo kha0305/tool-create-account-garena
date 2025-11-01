@@ -80,9 +80,36 @@ def generate_username() -> str:
     return f"{prefix}{suffix}"
 
 def generate_password() -> str:
-    """Generate secure random password"""
-    chars = string.ascii_letters + string.digits + '!@#$%'
-    return ''.join(random.choices(chars, k=12))
+    """
+    Generate secure random password for Garena
+    Requirements: 8-16 characters with at least:
+    - One lowercase letter (a-z)
+    - One uppercase letter (A-Z)
+    - One number (0-9)
+    - One symbol
+    """
+    # Define character sets
+    lowercase = string.ascii_lowercase
+    uppercase = string.ascii_uppercase
+    digits = string.digits
+    symbols = '!@#$%^&*'
+    
+    # Ensure at least one character from each required set
+    password_chars = [
+        random.choice(lowercase),
+        random.choice(uppercase),
+        random.choice(digits),
+        random.choice(symbols)
+    ]
+    
+    # Fill the rest with random characters (total length: 12)
+    all_chars = lowercase + uppercase + digits + symbols
+    password_chars.extend(random.choices(all_chars, k=8))
+    
+    # Shuffle to avoid predictable patterns
+    random.shuffle(password_chars)
+    
+    return ''.join(password_chars)
 
 def generate_phone() -> str:
     """Generate Vietnamese phone number (+84)"""
