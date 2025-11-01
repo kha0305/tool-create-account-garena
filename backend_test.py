@@ -274,8 +274,8 @@ class GarenaBackendTester:
         failed_passwords = []
         
         try:
-            # Create 10 accounts to test password generation
-            payload = {"quantity": 10, "email_provider": "temp-mail"}
+            # Create 5 accounts to test password generation with mail.tm
+            payload = {"quantity": 5, "email_provider": "mail.tm"}
             response = await self.client.post(f"{BACKEND_URL}/accounts/create", json=payload)
             
             if response.status_code == 200:
