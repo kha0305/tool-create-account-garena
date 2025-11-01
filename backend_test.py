@@ -8,6 +8,7 @@ import asyncio
 import httpx
 import json
 import time
+import re
 from typing import Dict, List, Optional
 
 # Configuration
