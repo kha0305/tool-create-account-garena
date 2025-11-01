@@ -256,7 +256,7 @@ class MySQLDatabase:
                         if result.get('accounts'):
                             try:
                                 result['accounts'] = json.loads(result['accounts'])
-                            except:
+                            except (json.JSONDecodeError, TypeError):
                                 result['accounts'] = []
                         # Convert datetime to ISO string
                         if result.get('created_at'):
