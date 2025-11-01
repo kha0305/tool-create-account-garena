@@ -89,26 +89,55 @@ class GarenaBackendTester:
         except Exception as e:
             self.log_test("Email Providers Endpoint", False, f"Request error: {str(e)}")
     
-    async def test_email_provider_testing(self, provider: str):
-        """Test POST /api/test-email-provider"""
+    async def test_mail_tm_provider(self):
+        """Test POST /api/test-email-provider with mail.tm"""
         try:
-            response = await self.client.post(f"{BACKEND_URL}/test-email-provider?provider={provider}")
+            response = await self.client.post(f"{BACKEND_URL}/test-email-provider?provider=mail.tm")
             
             if response.status_code == 200:
                 data = response.json()
                 if data.get("success") and data.get("email"):
                     email = data["email"]
                     has_session = data.get("has_session", False)
-                    self.log_test(f"Test {provider} Provider", True, 
-                                f"Generated email: {email}, has_session: {has_session}")
+                    has_token = data.get("session_has_token", False)
+                    
+                    # Verify it's a real mail.tm domain
+                    mail_tm_domains = ["mail.tm", "inboxbear.com", "guerrillamail.info", "guerrillamail.biz", "guerrillamail.com", "guerrillamail.de", "guerrillamail.net", "guerrillamail.org", "sharklasers.com", "grr.la", "pokemail.net", "spam4.me"]
+                    is_mail_tm_domain = any(domain in email for domain in mail_tm_domains)
+                    
+                    if has_session and has_token and is_mail_tm_domain:
+                        self.log_test("Test mail.tm Provider", True, 
+                                    f"✅ Generated real mail.tm email: {email}, has_session: {has_session}, has_token: {has_token}")
+                    else:
+                        self.log_test("Test mail.tm Provider", False, 
+                                    f"❌ Missing session/token or not mail.tm domain: {email}, session: {has_session}, token: {has_token}", data)
                 else:
-                    self.log_test(f"Test {provider} Provider", False, 
-                                f"Provider test failed: {data.get('error', 'Unknown error')}", data)
+                    self.log_test("Test mail.tm Provider", False, 
+                                f"❌ Provider test failed: {data.get('error', 'Unknown error')}", data)
             else:
-                self.log_test(f"Test {provider} Provider", False, f"HTTP {response.status_code}", 
+                self.log_test("Test mail.tm Provider", False, f"HTTP {response.status_code}", 
                             {"status": response.status_code, "text": response.text})
         except Exception as e:
-            self.log_test(f"Test {provider} Provider", False, f"Request error: {str(e)}")
+            self.log_test("Test mail.tm Provider", False, f"Request error: {str(e)}")
+    
+    async def test_other_provider_fallback(self):
+        """Test that other providers fallback to mail.tm"""
+        try:
+            response = await self.client.post(f"{BACKEND_URL}/test-email-provider?provider=temp-mail")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and data.get("provider") == "mail.tm":
+                    self.log_test("Provider Fallback Test", True, 
+                                f"✅ temp-mail request correctly fallback to mail.tm")
+                else:
+                    self.log_test("Provider Fallback Test", False, 
+                                f"❌ Expected fallback to mail.tm, got: {data.get('provider')}", data)
+            else:
+                self.log_test("Provider Fallback Test", False, f"HTTP {response.status_code}", 
+                            {"status": response.status_code, "text": response.text})
+        except Exception as e:
+            self.log_test("Provider Fallback Test", False, f"Request error: {str(e)}")
     
     async def test_account_creation(self, quantity: int, email_provider: str):
         """Test POST /api/accounts/create"""
