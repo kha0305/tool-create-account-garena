@@ -166,11 +166,11 @@ class GarenaBackendTester:
             self.log_test(f"Create {quantity} Accounts (mail.tm)", False, f"Request error: {str(e)}")
         return None
     
-    async def test_job_status(self, job_id: str, expected_provider: str):
-        """Test GET /api/accounts/job/{job_id}"""
+    async def test_job_status_mail_tm(self, job_id: str):
+        """Test GET /api/accounts/job/{job_id} for mail.tm accounts"""
         try:
             # Wait a bit for job to process
-            await asyncio.sleep(3)
+            await asyncio.sleep(5)
             
             response = await self.client.get(f"{BACKEND_URL}/accounts/job/{job_id}")
             
@@ -181,25 +181,46 @@ class GarenaBackendTester:
                 total = data.get("total", 0)
                 accounts = data.get("accounts", [])
                 
-                # Check if accounts have correct email_provider
-                provider_check = True
-                for account in accounts:
-                    if account.get("email_provider") != expected_provider:
-                        provider_check = False
-                        break
-                    self.created_accounts.append(account)
+                # Check if accounts have correct email_provider and session data
+                mail_tm_domains = ["mail.tm", "inboxbear.com", "guerrillamail.info", "guerrillamail.biz", "guerrillamail.com", "guerrillamail.de", "guerrillamail.net", "guerrillamail.org", "sharklasers.com", "grr.la", "pokemail.net", "spam4.me"]
                 
-                if provider_check:
-                    self.log_test(f"Job Status ({job_id})", True, 
-                                f"Status: {status}, Progress: {completed}/{total}, Provider: {expected_provider}")
+                valid_accounts = 0
+                issues = []
+                
+                for account in accounts:
+                    self.created_accounts.append(account)
+                    
+                    # Check provider
+                    if account.get("email_provider") != "mail.tm":
+                        issues.append(f"Wrong provider: {account.get('email_provider')}")
+                        continue
+                    
+                    # Check email domain
+                    email = account.get("email", "")
+                    is_mail_tm_domain = any(domain in email for domain in mail_tm_domains)
+                    if not is_mail_tm_domain:
+                        issues.append(f"Non-mail.tm domain: {email}")
+                        continue
+                    
+                    # Check session data has token
+                    session_data = account.get("email_session_data", {})
+                    if not session_data or not session_data.get("token"):
+                        issues.append(f"Missing token in session_data for {email}")
+                        continue
+                    
+                    valid_accounts += 1
+                
+                if len(issues) == 0 and valid_accounts == len(accounts):
+                    self.log_test(f"Job Status mail.tm ({job_id})", True, 
+                                f"✅ Status: {status}, Progress: {completed}/{total}, All {valid_accounts} accounts valid with mail.tm emails and tokens")
                 else:
-                    self.log_test(f"Job Status ({job_id})", False, 
-                                f"Accounts have wrong email_provider", data)
+                    self.log_test(f"Job Status mail.tm ({job_id})", False, 
+                                f"❌ {valid_accounts}/{len(accounts)} valid accounts. Issues: {issues[:3]}", data)
             else:
-                self.log_test(f"Job Status ({job_id})", False, f"HTTP {response.status_code}", 
+                self.log_test(f"Job Status mail.tm ({job_id})", False, f"HTTP {response.status_code}", 
                             {"status": response.status_code, "text": response.text})
         except Exception as e:
-            self.log_test(f"Job Status ({job_id})", False, f"Request error: {str(e)}")
+            self.log_test(f"Job Status mail.tm ({job_id})", False, f"Request error: {str(e)}")
     
     async def test_list_accounts(self):
         """Test GET /api/accounts"""
