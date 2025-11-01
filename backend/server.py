@@ -235,7 +235,7 @@ async def create_accounts(request: CreateAccountRequest, background_tasks: Backg
     job_dict = job.model_dump()
     job_dict['created_at'] = job_dict['created_at'].isoformat()
     
-    await db.creation_jobs.insert_one(job_dict)
+    await db.insert_job(job_dict)
     
     # Start background task with email provider
     background_tasks.add_task(process_account_creation, job.job_id, request.quantity, request.email_provider)
