@@ -139,31 +139,31 @@ class GarenaBackendTester:
         except Exception as e:
             self.log_test("Provider Fallback Test", False, f"Request error: {str(e)}")
     
-    async def test_account_creation(self, quantity: int, email_provider: str):
-        """Test POST /api/accounts/create"""
+    async def test_account_creation_mail_tm(self, quantity: int):
+        """Test POST /api/accounts/create with mail.tm"""
         try:
             payload = {
                 "quantity": quantity,
-                "email_provider": email_provider
+                "email_provider": "mail.tm"
             }
             response = await self.client.post(f"{BACKEND_URL}/accounts/create", json=payload)
             
             if response.status_code == 200:
                 data = response.json()
-                if "job_id" in data:
+                if "job_id" in data and data.get("email_provider") == "mail.tm":
                     job_id = data["job_id"]
                     self.job_ids.append(job_id)
-                    self.log_test(f"Create {quantity} Accounts ({email_provider})", True, 
-                                f"Job started: {job_id}")
+                    self.log_test(f"Create {quantity} Accounts (mail.tm)", True, 
+                                f"✅ Job started: {job_id}, provider: {data.get('email_provider')}")
                     return job_id
                 else:
-                    self.log_test(f"Create {quantity} Accounts ({email_provider})", False, 
-                                "Missing job_id in response", data)
+                    self.log_test(f"Create {quantity} Accounts (mail.tm)", False, 
+                                "Missing job_id or wrong provider in response", data)
             else:
-                self.log_test(f"Create {quantity} Accounts ({email_provider})", False, 
+                self.log_test(f"Create {quantity} Accounts (mail.tm)", False, 
                             f"HTTP {response.status_code}", {"status": response.status_code, "text": response.text})
         except Exception as e:
-            self.log_test(f"Create {quantity} Accounts ({email_provider})", False, f"Request error: {str(e)}")
+            self.log_test(f"Create {quantity} Accounts (mail.tm)", False, f"Request error: {str(e)}")
         return None
     
     async def test_job_status(self, job_id: str, expected_provider: str):
