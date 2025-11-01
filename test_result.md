@@ -231,10 +231,6 @@ frontend:
       - working: "unknown"
         agent: "main"
         comment: "Updated email provider selector to only show Mail.tm. Changed default provider to mail.tm. Updated provider badge display to show Mail.tm icon. Removed conditional inbox button - now shows for all accounts since mail.tm supports inbox checking."
-    status_history:
-      - working: "unknown"
-        agent: "main"
-        comment: "Created modal dialog to display inbox messages with sender, subject, body, and timestamp. Includes refresh button."
   
   - task: "Display email provider badge in accounts table"
     implemented: true
