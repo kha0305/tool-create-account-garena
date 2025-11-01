@@ -158,65 +158,105 @@ async def create_garena_account(username: str, email: str, phone: str, password:
     }
 
 async def process_account_creation(job_id: str, quantity: int, email_provider: str = "mail.tm"):
-    """Background task to create accounts"""
+    """Background task to create accounts with rate limiting protection"""
     job_data = await db.find_job(job_id)
     if not job_data:
         return
     
     for i in range(quantity):
-        try:
-            # Generate account details
-            username = generate_username()
-            email_data = await get_temp_email(email_provider)
-            email = email_data['email']
-            email_session = email_data.get('session_data')
-            phone = generate_phone()
-            password = generate_password()
-            
-            # Create Garena account
-            result = await create_garena_account(username, email, phone, password)
-            
-            if result["success"]:
-                # Save account to database
-                account = GarenaAccount(
-                    username=username,
-                    email=email,
-                    phone=phone,
-                    password=password,
-                    status="created",
-                    email_provider=email_provider,
-                    email_session_data=email_session
-                )
+        max_retries = 3
+        retry_count = 0
+        success = False
+        
+        while retry_count < max_retries and not success:
+            try:
+                # Generate account details
+                username = generate_username()
                 
-                account_dict = account.model_dump()
-                account_dict['created_at'] = account_dict['created_at'].isoformat()
-                await db.insert_account(account_dict)
+                # Retry logic for email creation (rate limiting protection)
+                email_data = None
+                for attempt in range(3):
+                    try:
+                        email_data = await get_temp_email(email_provider)
+                        break
+                    except Exception as email_error:
+                        if "429" in str(email_error) or "Too Many" in str(email_error):
+                            logging.warning(f"Rate limited, waiting before retry {attempt + 1}/3...")
+                            await asyncio.sleep(5 * (attempt + 1))  # Exponential backoff: 5s, 10s, 15s
+                        else:
+                            raise
                 
-                # Update job
-                await db.update_job(
-                    job_id,
-                    {
-                        "$inc": {"completed": 1},
-                        "$push": {"accounts": account.id}
-                    }
-                )
-            else:
-                await db.update_job(
-                    job_id,
-                    {"$inc": {"failed": 1}}
-                )
-        except Exception as e:
-            logging.error(f"Error creating account: {e}")
-            await db.update_job(
-                job_id,
-                {"$inc": {"failed": 1}}
-            )
+                if not email_data:
+                    raise Exception("Failed to create email after 3 attempts")
+                
+                email = email_data['email']
+                email_session = email_data.get('session_data')
+                phone = generate_phone()
+                password = generate_password()
+                
+                # Create Garena account
+                result = await create_garena_account(username, email, phone, password)
+                
+                if result["success"]:
+                    # Save account to database
+                    account = GarenaAccount(
+                        username=username,
+                        email=email,
+                        phone=phone,
+                        password=password,
+                        status="created",
+                        email_provider=email_provider,
+                        email_session_data=email_session
+                    )
+                    
+                    account_dict = account.model_dump()
+                    account_dict['created_at'] = account_dict['created_at'].isoformat()
+                    await db.insert_account(account_dict)
+                    
+                    # Update job
+                    await db.update_job(
+                        job_id,
+                        {
+                            "$inc": {"completed": 1},
+                            "$push": {"accounts": account.id}
+                        }
+                    )
+                    success = True
+                    logging.info(f"✅ Account {i + 1}/{quantity} created successfully: {email}")
+                else:
+                    retry_count += 1
+                    if retry_count < max_retries:
+                        logging.warning(f"Account creation failed, retrying {retry_count}/{max_retries}...")
+                        await asyncio.sleep(3)
+                    else:
+                        logging.error(f"❌ Failed to create account after {max_retries} attempts")
+                        await db.update_job(
+                            job_id,
+                            {"$inc": {"failed": 1}}
+                        )
+            except Exception as e:
+                retry_count += 1
+                logging.error(f"Error creating account (attempt {retry_count}/{max_retries}): {e}")
+                if retry_count >= max_retries:
+                    await db.update_job(
+                        job_id,
+                        {"$inc": {"failed": 1}}
+                    )
+                else:
+                    await asyncio.sleep(3)
+        
+        # Add delay between accounts to avoid rate limiting (except for last account)
+        if i < quantity - 1:
+            delay = 2 if quantity <= 3 else 3  # 2s for small batches, 3s for larger
+            await asyncio.sleep(delay)
+            logging.info(f"Waiting {delay}s before creating next account...")
     
     # Mark job as completed
     await db.update_job(
         job_id,
         {"$set": {"status": "completed"}}
     )
+    logging.info(f"✅ Job {job_id} completed: {quantity} accounts requested")
 
 # API Routes
 @api_router.get("/")
