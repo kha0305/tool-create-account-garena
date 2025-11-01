@@ -101,10 +101,14 @@ const Dashboard = () => {
 
     const qty = parseInt(quantity);
     
-    // Warning for large batches
-    if (qty > 10) {
-      toast.warning('Tạo nhiều tài khoản có thể mất thời gian do giới hạn API. Vui lòng kiên nhẫn!', {
-        duration: 5000
+    // Warning for any batch - emphasize rate limiting
+    if (qty > 5) {
+      toast.warning('⚠️ Tạo nhiều tài khoản sẽ mất thời gian do giới hạn API của Mail.tm. Mỗi tài khoản cần ~10-15 giây. Vui lòng kiên nhẫn!', {
+        duration: 6000
+      });
+    } else if (qty > 1) {
+      toast.info('ℹ️ Đang tạo từng tài khoản một để tránh rate limiting. Vui lòng đợi!', {
+        duration: 4000
       });
     }
 
@@ -115,13 +119,23 @@ const Dashboard = () => {
         email_provider: emailProvider
       });
 
-      const estimatedTime = qty * 3; // Rough estimate: 3 seconds per account
-      toast.success(`Đã bắt đầu tạo ${qty} tài khoản (dự kiến ~${Math.ceil(estimatedTime / 60)} phút)`, {
+      const estimatedTime = qty * 10; // Updated estimate: 10 seconds per account
+      const minutes = Math.ceil(estimatedTime / 60);
+      toast.success(`✅ Đã bắt đầu tạo ${qty} tài khoản (dự kiến ~${minutes} phút)`, {
         duration: 4000
       });
       pollJobStatus(response.data.job_id);
     } catch (error) {
-      toast.error('Lỗi khi tạo tài khoản. Vui lòng thử lại!');
+      const errorMsg = error.response?.data?.detail || error.message || 'Lỗi không xác định';
+      
+      if (errorMsg.includes('429') || errorMsg.includes('rate limit')) {
+        toast.error('⚠️ API Mail.tm đang bị giới hạn. Vui lòng đợi 1-2 phút rồi thử lại!', {
+          duration: 6000
+        });
+      } else {
+        toast.error('❌ Lỗi khi tạo tài khoản. Vui lòng thử lại sau!');
+      }
+      
       setCreating(false);
       console.error(error);
     }
