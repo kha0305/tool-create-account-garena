@@ -120,68 +120,27 @@ def generate_phone() -> str:
     end = ''.join(random.choices(string.digits, k=4))
     return f"+84-{prefix}{middle[:1]}-{middle[1:]}-{end}"
 
-async def get_temp_email(provider: str = "temp-mail") -> Optional[Dict[str, Any]]:
+async def get_temp_email(provider: str = "mail.tm") -> Optional[Dict[str, Any]]:
     """
-    Get temporary email using specified provider
-    Args:
-        provider: 'temp-mail' or '10minutemail'
+    Get temporary email using mail.tm API
     Returns:
         Dict with email and session_data or None
     """
-    if provider == "10minutemail":
-        # Use 10minutemail.one
-        try:
-            result = await get_10minute_email_with_session()
-            if result and result.get('email'):
-                return {
-                    'email': result['email'],
-                    'session_data': result
-                }
-            # Fallback to random email
+    try:
+        mail_tm = MailTmService()
+        result = await mail_tm.create_account()
+        
+        if result and result.get('email'):
             return {
-                'email': f"temp{random.randint(10000, 99999)}@tempmail.com",
-                'session_data': None
+                'email': result['email'],
+                'session_data': result['session_data']
             }
-        except Exception as e:
-            logging.error(f"Error getting 10minutemail email: {e}")
-            return {
-                'email': f"temp{random.randint(10000, 99999)}@tempmail.com",
-                'session_data': None
-            }
-    else:
-        # Use temp-mail.io API (original)
-        try:
-            async with httpx.AsyncClient() as client:
-                # Get available domains
-                response = await client.get(
-                    f"{TEMP_MAIL_BASE_URL}/domains",
-                    headers={"apikey": TEMP_MAIL_API_KEY},
-                    timeout=10.0
-                )
-                
-                if response.status_code == 200:
-                    domains = response.json()
-                    if domains and len(domains) > 0:
-                        domain = random.choice(domains)
-                        local_part = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
-                        email = f"{local_part}{domain}"
-                        return {
-                            'email': email,
-                            'session_data': {'provider': 'temp-mail', 'email': email}
-                        }
-                
-                # Fallback to random email if API fails
-                return {
-                    'email': f"temp{random.randint(10000, 99999)}@tempmail.com",
-                    'session_data': None
-                }
-        except Exception as e:
-            logging.error(f"Error getting temp email: {e}")
-            # Fallback to random email
-            return {
-                'email': f"temp{random.randint(10000, 99999)}@tempmail.com",
-                'session_data': None
-            }
+        else:
+            raise Exception("Failed to create mail.tm account")
+            
+    except Exception as e:
+        logging.error(f"Error creating mail.tm account: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create temporary email: {str(e)}")
 
 async def create_garena_account(username: str, email: str, phone: str, password: str) -> dict:
     """Simulate Garena account creation"""
