@@ -18,9 +18,14 @@ import io
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
 from database import db
+import time
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Global rate limit tracking
+last_rate_limit_time = 0
+RATE_LIMIT_COOLDOWN = 60  # Wait 60 seconds after hitting rate limit
 
 # Create the main app without a prefix
 app = FastAPI()
