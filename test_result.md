@@ -122,7 +122,7 @@ backend:
 
   - task: "Cập nhật server.py để sử dụng mail.tm"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
@@ -131,6 +131,9 @@ backend:
       - working: "unknown"
         agent: "main"
         comment: "Replaced temp-mail and 10minutemail with mail.tm throughout server.py. Updated get_temp_email() function, email provider endpoints, and inbox checking logic to use MailTmService."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: Server.py successfully integrated with mail.tm. All API endpoints functional: POST /api/accounts/create works (with rate limiting consideration), GET /api/accounts returns created accounts, inbox checking via GET /api/accounts/{id}/inbox works with JWT authentication. Account creation process: generates username/password, creates mail.tm account, gets JWT token, stores in database. Rate limiting from mail.tm API (429 errors) is expected behavior when creating accounts too rapidly."
 
   - task: "API endpoint để xem chi tiết email"
     implemented: true
