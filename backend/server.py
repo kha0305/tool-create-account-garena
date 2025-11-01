@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks
+from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -14,6 +15,9 @@ import random
 import string
 import asyncio
 from mail_tm_service import MailTmService
+import io
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
