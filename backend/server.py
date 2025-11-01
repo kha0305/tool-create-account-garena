@@ -248,9 +248,16 @@ async def process_account_creation(job_id: str, quantity: int, email_provider: s
         
         # Add delay between accounts to avoid rate limiting (except for last account)
         if i < quantity - 1:
-            delay = 2 if quantity <= 3 else 3  # 2s for small batches, 3s for larger
+            # Increased delays to avoid rate limiting
+            if quantity <= 2:
+                delay = 5  # 5s for 1-2 accounts
+            elif quantity <= 5:
+                delay = 8  # 8s for 3-5 accounts
+            else:
+                delay = 10  # 10s for larger batches
+            
             await asyncio.sleep(delay)
-            logging.info(f"Waiting {delay}s before creating next account...")
+            logging.info(f"⏳ Waiting {delay}s before creating next account to avoid rate limiting...")
     
     # Mark job as completed
     await db.update_job(
