@@ -181,8 +181,9 @@ async def process_account_creation(job_id: str, quantity: int, email_provider: s
                         break
                     except Exception as email_error:
                         if "429" in str(email_error) or "Too Many" in str(email_error):
-                            logging.warning(f"Rate limited, waiting before retry {attempt + 1}/3...")
-                            await asyncio.sleep(5 * (attempt + 1))  # Exponential backoff: 5s, 10s, 15s
+                            wait_time = 10 * (attempt + 1)  # Increased: 10s, 20s, 30s
+                            logging.warning(f"⚠️ Rate limited by mail.tm API, waiting {wait_time}s before retry {attempt + 1}/3...")
+                            await asyncio.sleep(wait_time)
                         else:
                             raise
                 
