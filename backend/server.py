@@ -287,6 +287,32 @@ async def process_account_creation(job_id: str, quantity: int, email_provider: s
 async def root():
     return {"message": "Garena Account Creator API"}
 
+@api_router.get("/rate-limit-status")
+async def get_rate_limit_status():
+    """Check if we're currently in rate limit cooldown"""
+    global last_rate_limit_time
+    
+    time_since_rate_limit = time.time() - last_rate_limit_time
+    in_cooldown = time_since_rate_limit < RATE_LIMIT_COOLDOWN
+    
+    if in_cooldown:
+        remaining_time = int(RATE_LIMIT_COOLDOWN - time_since_rate_limit)
+        return {
+            "status": "rate_limited",
+            "in_cooldown": True,
+            "remaining_seconds": remaining_time,
+            "message": f"Vui lòng đợi {remaining_time} giây trước khi tạo tài khoản mới",
+            "recommendation": "Tạo 1-3 accounts mỗi lần để tránh rate limiting"
+        }
+    else:
+        return {
+            "status": "ready",
+            "in_cooldown": False,
+            "remaining_seconds": 0,
+            "message": "Sẵn sàng tạo tài khoản",
+            "recommendation": "Khuyên tạo 2-3 accounts mỗi lần"
+        }
+
 @api_router.post("/accounts/create")
 async def create_accounts(request: CreateAccountRequest, background_tasks: BackgroundTasks):
     """Start batch account creation"""
