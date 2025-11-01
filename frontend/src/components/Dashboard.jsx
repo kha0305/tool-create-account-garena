@@ -499,8 +499,7 @@ const Dashboard = () => {
                               title="Kiểm tra inbox"
                             >
                               <Inbox size={16} />
-                              </Button>
-                            )}
+                            </Button>
                             <Button
                               onClick={() => handleVerifyLogin(account)}
                               variant="ghost"
