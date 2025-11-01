@@ -101,8 +101,8 @@ class GarenaBackendTester:
                     has_session = data.get("has_session", False)
                     has_token = data.get("session_has_token", False)
                     
-                    # Verify it's a real mail.tm domain
-                    mail_tm_domains = ["mail.tm", "inboxbear.com", "guerrillamail.info", "guerrillamail.biz", "guerrillamail.com", "guerrillamail.de", "guerrillamail.net", "guerrillamail.org", "sharklasers.com", "grr.la", "pokemail.net", "spam4.me"]
+                    # Verify it's a real mail.tm domain (get current domains from API)
+                    mail_tm_domains = ["mail.tm", "inboxbear.com", "guerrillamail.info", "guerrillamail.biz", "guerrillamail.com", "guerrillamail.de", "guerrillamail.net", "guerrillamail.org", "sharklasers.com", "grr.la", "pokemail.net", "spam4.me", "2200freefonts.com"]
                     is_mail_tm_domain = any(domain in email for domain in mail_tm_domains)
                     
                     if has_session and has_token and is_mail_tm_domain:
