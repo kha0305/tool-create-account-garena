@@ -310,19 +310,16 @@ async def test_temp_email():
     email = await get_temp_email()
     return {"email": email}
 
-@api_router.post("/accounts/{account_id}/verify")
+@api_router.post("/accounts/{account_id}/verify-login")
 async def verify_account_login(account_id: str):
     """Mark account as ready for verification"""
-    account = await db.garena_accounts.find_one({"id": account_id})
+    account = await db.find_account(account_id)
     
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     
     # Update status to pending verification
-    await db.garena_accounts.update_one(
-        {"id": account_id},
-        {"$set": {"status": "pending_verification"}}
-    )
+    await db.update_account(account_id, {"status": "pending_verification"})
     
     return {
         "message": "Account ready for verification",
@@ -343,12 +340,9 @@ async def update_account_status(account_id: str, status: str):
     if status not in valid_statuses:
         raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
     
-    result = await db.garena_accounts.update_one(
-        {"id": account_id},
-        {"$set": {"status": status}}
-    )
+    result = await db.update_account(account_id, {"status": status})
     
-    if result.modified_count == 0:
+    if not result:
         raise HTTPException(status_code=404, detail="Account not found")
     
     return {"message": "Status updated successfully", "status": status}
