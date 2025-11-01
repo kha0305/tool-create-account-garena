@@ -178,6 +178,7 @@ async def process_account_creation(job_id: str, quantity: int, email_provider: s
         await asyncio.sleep(wait_time)
     
     for i in range(quantity):
+        global last_rate_limit_time
         max_retries = 3
         retry_count = 0
         success = False
@@ -195,7 +196,6 @@ async def process_account_creation(job_id: str, quantity: int, email_provider: s
                         break
                     except Exception as email_error:
                         if "429" in str(email_error) or "Too Many" in str(email_error):
-                            global last_rate_limit_time
                             last_rate_limit_time = time.time()
                             wait_time = 10 * (attempt + 1)  # Increased: 10s, 20s, 30s
                             logging.warning(f"⚠️ Rate limited by mail.tm API, waiting {wait_time}s before retry {attempt + 1}/3...")
