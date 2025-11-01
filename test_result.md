@@ -161,15 +161,18 @@ backend:
 
   - task: "Export CSV endpoint"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Added GET /api/accounts/export/csv endpoint. CSV format with headers: Username,Email,Password,Phone,Status,Provider,Created At. Filename: ACCOUNTS_{count}.csv."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: CSV export endpoint perfect. Tested with 5 accounts - correct headers 'Username,Email,Password,Phone,Status,Provider,Created At', proper filename 'ACCOUNTS_5.csv', correct CSV structure and content-disposition headers. All required fields present and properly formatted."
 
   - task: "Export XLSX endpoint"
     implemented: true
