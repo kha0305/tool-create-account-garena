@@ -11,7 +11,7 @@ import time
 from typing import Dict, List, Optional
 
 # Configuration
-BACKEND_URL = "https://quickbox-mail.preview.emergentagent.com/api"
+BACKEND_URL = "https://task-exec.preview.emergentagent.com/api"
 TIMEOUT = 30.0
 
 class GarenaBackendTester:
