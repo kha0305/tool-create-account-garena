@@ -453,6 +453,174 @@ async def test_email_provider(provider: str):
             "error": str(e)
         }
 
+@api_router.get("/accounts/{account_id}/inbox/{message_id}")
+async def get_email_content(account_id: str, message_id: str):
+    """Get full content of a specific email message"""
+    account = await db.garena_accounts.find_one({"id": account_id})
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    
+    email_session = account.get('email_session_data')
+    
+    if not email_session:
+        raise HTTPException(status_code=400, detail="No session data available for this email")
+    
+    token = email_session.get('token')
+    
+    if not token:
+        raise HTTPException(status_code=400, detail="No authentication token available")
+    
+    try:
+        mail_tm = MailTmService()
+        message_content = await mail_tm.get_message_content(message_id, token)
+        
+        if not message_content:
+            raise HTTPException(status_code=404, detail="Message not found")
+        
+        return {
+            "account_id": account_id,
+            "message": message_content
+        }
+    except Exception as e:
+        logging.error(f"Error getting email content: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get email content: {str(e)}")
+
+@api_router.get("/accounts/export/txt")
+async def export_accounts_txt():
+    """Export accounts as TXT file with pipe-delimited format"""
+    accounts = await db.garena_accounts.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    if not accounts:
+        raise HTTPException(status_code=404, detail="No accounts to export")
+    
+    # Create TXT content with format: username|password|email|Tạo lúc: dd-mm-yy hh:mm
+    lines = []
+    for account in accounts:
+        created_at = account.get('created_at')
+        if isinstance(created_at, str):
+            created_at = datetime.fromisoformat(created_at)
+        
+        # Format: dd-mm-yy hh:mm
+        time_str = created_at.strftime("%d-%m-%y %H:%M")
+        
+        line = f"{account['username']}|{account['password']}|{account['email']}|Tạo lúc: {time_str}"
+        lines.append(line)
+    
+    content = "\n".join(lines)
+    
+    # Generate filename: UPPERCASE_COUNT.txt
+    filename = f"ACCOUNTS_{len(accounts)}.txt"
+    
+    return StreamingResponse(
+        io.BytesIO(content.encode('utf-8')),
+        media_type="text/plain",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+@api_router.get("/accounts/export/csv")
+async def export_accounts_csv():
+    """Export accounts as CSV file"""
+    accounts = await db.garena_accounts.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    if not accounts:
+        raise HTTPException(status_code=404, detail="No accounts to export")
+    
+    # Create CSV content
+    lines = ["Username,Email,Password,Phone,Status,Provider,Created At"]
+    
+    for account in accounts:
+        created_at = account.get('created_at')
+        if isinstance(created_at, str):
+            created_at = datetime.fromisoformat(created_at)
+        
+        time_str = created_at.strftime("%Y-%m-%d %H:%M:%S")
+        
+        line = f"{account['username']},{account['email']},{account['password']},{account.get('phone', '')},{account.get('status', '')},{account.get('email_provider', '')},{time_str}"
+        lines.append(line)
+    
+    content = "\n".join(lines)
+    
+    # Generate filename: UPPERCASE_COUNT.csv
+    filename = f"ACCOUNTS_{len(accounts)}.csv"
+    
+    return StreamingResponse(
+        io.BytesIO(content.encode('utf-8')),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+@api_router.get("/accounts/export/xlsx")
+async def export_accounts_xlsx():
+    """Export accounts as XLSX file"""
+    accounts = await db.garena_accounts.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    if not accounts:
+        raise HTTPException(status_code=404, detail="No accounts to export")
+    
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Garena Accounts"
+    
+    # Define headers
+    headers = ["Username", "Email", "Password", "Phone", "Status", "Provider", "Created At"]
+    ws.append(headers)
+    
+    # Style headers
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+    
+    # Add data
+    for account in accounts:
+        created_at = account.get('created_at')
+        if isinstance(created_at, str):
+            created_at = datetime.fromisoformat(created_at)
+        
+        time_str = created_at.strftime("%Y-%m-%d %H:%M:%S")
+        
+        ws.append([
+            account['username'],
+            account['email'],
+            account['password'],
+            account.get('phone', ''),
+            account.get('status', ''),
+            account.get('email_provider', ''),
+            time_str
+        ])
+    
+    # Adjust column widths
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+    
+    # Save to BytesIO
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    # Generate filename: UPPERCASE_COUNT.xlsx
+    filename = f"ACCOUNTS_{len(accounts)}.xlsx"
+    
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 # Include the router in the main app
 app.include_router(api_router)
 
