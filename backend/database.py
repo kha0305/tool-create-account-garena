@@ -150,7 +150,7 @@ class MySQLDatabase:
                         if result.get('email_session_data'):
                             try:
                                 result['email_session_data'] = json.loads(result['email_session_data'])
-                            except:
+                            except (json.JSONDecodeError, TypeError):
                                 pass
                         if result.get('created_at'):
                             result['created_at'] = result['created_at'].isoformat()
