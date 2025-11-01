@@ -425,16 +425,26 @@ const Dashboard = () => {
                 <CardTitle className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>Danh sách tài khoản</CardTitle>
               </div>
               <div className="flex gap-2">
+                <Select value={exportFormat} onValueChange={setExportFormat}>
+                  <SelectTrigger className={`w-32 ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100' : 'bg-white border-gray-300 text-gray-900'}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className={theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}>
+                    <SelectItem value="txt" className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>TXT</SelectItem>
+                    <SelectItem value="csv" className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>CSV</SelectItem>
+                    <SelectItem value="xlsx" className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>XLSX</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button
-                  onClick={handleExportCSV}
+                  onClick={() => handleExport(exportFormat)}
                   variant="outline"
                   size="sm"
                   className={theme === 'dark' ? 'bg-green-900/20 hover:bg-green-900/40 border-green-700 text-green-400' : 'bg-green-50 hover:bg-green-100 border-green-300 text-green-700'}
                   disabled={accounts.length === 0}
-                  data-testid="export-csv-button"
+                  data-testid="export-button"
                 >
                   <Download className="mr-2" size={16} />
-                  Xuất CSV
+                  Xuất File
                 </Button>
                 <Button
                   onClick={handleDeleteAll}
