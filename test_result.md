@@ -146,15 +146,18 @@ backend:
 
   - task: "Export TXT endpoint"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Added GET /api/accounts/export/txt endpoint. Format: username|password|email|Tạo lúc: dd-mm-yy hh:mm. Filename: ACCOUNTS_{count}.txt. Returns StreamingResponse with text/plain media type."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: TXT export endpoint perfect. Tested with 5 accounts - correct format 'username|password|email|Tạo lúc: dd-mm-yy hh:mm', proper filename 'ACCOUNTS_5.txt', correct headers with attachment disposition. Date format exactly as requested (dd-mm-yy hh:mm). Sample: player652268|RL0#k*$j8IOJ|rongm5xncu@2200freefonts.com|Tạo lúc: 01-11-25 11:17"
 
   - task: "Export CSV endpoint"
     implemented: true
