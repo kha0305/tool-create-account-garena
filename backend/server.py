@@ -478,7 +478,7 @@ async def get_email_content(account_id: str, message_id: str):
 @api_router.get("/accounts/export/txt")
 async def export_accounts_txt():
     """Export accounts as TXT file with pipe-delimited format"""
-    accounts = await db.garena_accounts.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    accounts = await db.find_all_accounts(1000)
     
     if not accounts:
         raise HTTPException(status_code=404, detail="No accounts to export")
