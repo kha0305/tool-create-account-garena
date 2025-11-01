@@ -170,6 +170,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ WORKING: TXT export endpoint perfect. Tested with 5 accounts - correct format 'username|password|email|Tạo lúc: dd-mm-yy hh:mm', proper filename 'ACCOUNTS_5.txt', correct headers with attachment disposition. Date format exactly as requested (dd-mm-yy hh:mm). Sample: player652268|RL0#k*$j8IOJ|rongm5xncu@2200freefonts.com|Tạo lúc: 01-11-25 11:17"
+      - working: true
+        agent: "testing"
+        comment: "✅ RE-TESTED LOCAL STABILITY: TXT export confirmed working perfectly with local MySQL setup. Correct pipe-delimited format, proper filename generation, and attachment headers all functioning correctly."
 
   - task: "Export CSV endpoint"
     implemented: true
