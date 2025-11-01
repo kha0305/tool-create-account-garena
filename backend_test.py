@@ -347,7 +347,7 @@ class GarenaBackendTester:
         """Test that all generated passwords have consistent length (should be 12)"""
         try:
             # Create a few accounts to check password length consistency
-            payload = {"quantity": 5, "email_provider": "temp-mail"}
+            payload = {"quantity": 3, "email_provider": "mail.tm"}
             response = await self.client.post(f"{BACKEND_URL}/accounts/create", json=payload)
             
             if response.status_code == 200:
