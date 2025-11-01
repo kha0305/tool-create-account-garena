@@ -360,17 +360,11 @@ async def get_email_providers():
     return {
         "providers": [
             {
-                "id": "temp-mail",
-                "name": "Temp Mail API",
-                "description": "Official temp-mail.io API service",
-                "reliable": True
-            },
-            {
-                "id": "10minutemail",
-                "name": "10 Minute Mail",
-                "description": "10minutemail.one service",
+                "id": "mail.tm",
+                "name": "Mail.tm",
+                "description": "Mail.tm temporary email service with full inbox support",
                 "reliable": True,
-                "features": ["inbox_checking"]
+                "features": ["inbox_checking", "real_emails"]
             }
         ]
     }
@@ -383,7 +377,7 @@ async def check_account_inbox(account_id: str):
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     
-    email_provider = account.get('email_provider', 'temp-mail')
+    email_provider = account.get('email_provider', 'mail.tm')
     email_session = account.get('email_session_data')
     
     if not email_session:
@@ -395,28 +389,31 @@ async def check_account_inbox(account_id: str):
             "error": "No session data available for this email"
         }
     
-    # Check inbox based on provider
+    # Check inbox using mail.tm
     messages = []
-    if email_provider == "10minutemail":
-        try:
-            messages = await ten_minute_mail_service.check_inbox(email_session)
-        except Exception as e:
-            logging.error(f"Error checking 10minutemail inbox: {e}")
+    try:
+        mail_tm = MailTmService()
+        token = email_session.get('token')
+        
+        if not token:
             return {
                 "account_id": account_id,
                 "email": account.get('email'),
                 "provider": email_provider,
                 "messages": [],
-                "error": str(e)
+                "error": "No authentication token available"
             }
-    else:
-        # Temp-mail.io doesn't have easy inbox checking in free tier
+        
+        messages = await mail_tm.get_messages(token)
+        
+    except Exception as e:
+        logging.error(f"Error checking mail.tm inbox: {e}")
         return {
             "account_id": account_id,
             "email": account.get('email'),
             "provider": email_provider,
             "messages": [],
-            "info": "Inbox checking not available for temp-mail provider"
+            "error": str(e)
         }
     
     return {
