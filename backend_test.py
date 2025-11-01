@@ -416,6 +416,10 @@ class GarenaBackendTester:
             await self.test_email_provider_testing("temp-mail")
             await self.test_email_provider_testing("10minutemail")
             
+            # PRIORITY: Test password generation (Garena requirements)
+            await self.test_password_generation_direct()
+            await self.test_password_length_consistency()
+            
             # Test account creation with both providers
             job1 = await self.test_account_creation(2, "10minutemail")
             job2 = await self.test_account_creation(2, "temp-mail")
