@@ -336,8 +336,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Tích hợp Mail.tm service"
-    - "Cập nhật server.py để sử dụng mail.tm"
+    - "API endpoint để xem chi tiết email"
+    - "Export TXT endpoint"
+    - "Export CSV endpoint"
+    - "Export XLSX endpoint"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -347,3 +349,19 @@ agent_communication:
     message: "không có gởi email về nên thay bằng https://mail.tm/ hết đi"
   - agent: "main"
     message: "Đã thay thế hoàn toàn temp-mail và 10minutemail bằng mail.tm API. Backend: Created MailTmService with full JWT authentication, updated all endpoints. Frontend: Updated provider selector to only show mail.tm. Mail.tm supports real inbox checking với token authentication. Ready for backend testing."
+  - agent: "user"
+    message: "cho xem nội dung mail và cho nhiều lựa chọn export như txt, xlsx nhưng file txt thì định dạng là username|pass|email thời gian tạo"
+  - agent: "main"
+    message: "Đã hoàn thành tính năng mới:
+    
+    BACKEND:
+    1. GET /api/accounts/{account_id}/inbox/{message_id} - Xem chi tiết email (text, html, attachments)
+    2. GET /api/accounts/export/txt - Format: username|password|email|Tạo lúc: dd-mm-yy hh:mm
+    3. GET /api/accounts/export/csv - CSV export với headers đầy đủ
+    4. GET /api/accounts/export/xlsx - Excel với styling và auto column width
+    
+    FRONTEND:
+    1. Email Content Viewer - Click vào email để xem chi tiết, mặc định TEXT view với links có underline, toggle TEXT/HTML
+    2. Export Dropdown - TXT (mặc định), CSV, XLSX. Tên file: ACCOUNTS_{count}.ext
+    
+    Sẵn sàng test backend với các endpoints mới."
