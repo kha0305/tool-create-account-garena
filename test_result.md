@@ -256,16 +256,12 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 0
+  test_sequence: 1
   run_ui: false
 
 test_plan:
   current_focus:
-    - "Tích hợp 10minutemail.one service"
-    - "Endpoint GET /api/accounts/{account_id}/inbox"
-    - "Copy buttons for account credentials"
-    - "Email provider selector UI"
-    - "Check Inbox button and functionality"
+    - "Password generation theo yêu cầu Garena"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -277,3 +273,7 @@ agent_communication:
     message: "✅ BACKEND TESTING COMPLETE: All 10minutemail.one integration endpoints working perfectly. Fixed email generation to use authentic 10minutemail.one domains. Both email providers (temp-mail and 10minutemail) working correctly. Account creation, job tracking, inbox checking all functional. Ready for frontend testing or deployment."
   - agent: "main"
     message: "User feedback: Accounts không thể login vào Garena vì chỉ là simulated accounts. Added copy buttons for username, email, password để user có thể dễ dàng copy và đăng ký thủ công trên Garena."
+  - agent: "user"
+    message: "Password requirement issue: Your password must be between 8-16 characters, contain at least one lowercase letter (a-z), one uppercase letter (A-Z), one number (0-9), and one symbol."
+  - agent: "main"
+    message: "Fixed generate_password() function to meet Garena's strict password requirements. Now guarantees: 8-16 chars (using 12), at least 1 lowercase, 1 uppercase, 1 digit, 1 symbol. Characters are shuffled to avoid patterns. Ready for backend testing."
