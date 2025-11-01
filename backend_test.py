@@ -395,62 +395,56 @@ class GarenaBackendTester:
         except Exception as e:
             self.log_test("Password Length Consistency", False, f"Test error: {str(e)}")
 
-    async def test_inbox_checking(self):
-        """Test GET /api/accounts/{account_id}/inbox"""
+    async def test_mail_tm_inbox_checking(self):
+        """Test GET /api/accounts/{account_id}/inbox with mail.tm JWT authentication"""
         if not self.created_accounts:
-            self.log_test("Inbox Checking", False, "No accounts available for testing")
+            self.log_test("Mail.tm Inbox Checking", False, "No accounts available for testing")
             return
         
-        # Test with 10minutemail account
-        minutemail_account = None
-        tempmail_account = None
+        # Test with mail.tm account
+        mail_tm_account = None
         
         for account in self.created_accounts:
-            if account.get("email_provider") == "10minutemail":
-                minutemail_account = account
-            elif account.get("email_provider") == "temp-mail":
-                tempmail_account = account
+            if account.get("email_provider") == "mail.tm":
+                mail_tm_account = account
+                break
         
-        # Test 10minutemail inbox
-        if minutemail_account:
+        if mail_tm_account:
             try:
-                account_id = minutemail_account["id"]
+                account_id = mail_tm_account["id"]
                 response = await self.client.get(f"{BACKEND_URL}/accounts/{account_id}/inbox")
                 
                 if response.status_code == 200:
                     data = response.json()
-                    if "messages" in data and data.get("provider") == "10minutemail":
+                    if "messages" in data and data.get("provider") == "mail.tm":
                         messages = data["messages"]
-                        self.log_test("10minutemail Inbox Check", True, 
-                                    f"Inbox accessible, {len(messages)} messages found")
+                        email = data.get("email")
+                        
+                        # Check if response has proper structure
+                        has_count = "count" in data
+                        has_account_id = data.get("account_id") == account_id
+                        
+                        if has_count and has_account_id:
+                            self.log_test("Mail.tm Inbox Check", True, 
+                                        f"✅ Inbox accessible for {email}, {len(messages)} messages found, JWT auth working")
+                        else:
+                            self.log_test("Mail.tm Inbox Check", False, 
+                                        f"❌ Missing required fields in response", data)
                     else:
-                        self.log_test("10minutemail Inbox Check", False, 
-                                    "Invalid inbox response format", data)
+                        # Check if it's an error due to missing token
+                        if "error" in data and "token" in data.get("error", "").lower():
+                            self.log_test("Mail.tm Inbox Check", False, 
+                                        f"❌ JWT token issue: {data.get('error')}", data)
+                        else:
+                            self.log_test("Mail.tm Inbox Check", False, 
+                                        f"❌ Invalid inbox response format", data)
                 else:
-                    self.log_test("10minutemail Inbox Check", False, f"HTTP {response.status_code}", 
+                    self.log_test("Mail.tm Inbox Check", False, f"HTTP {response.status_code}", 
                                 {"status": response.status_code, "text": response.text})
             except Exception as e:
-                self.log_test("10minutemail Inbox Check", False, f"Request error: {str(e)}")
-        
-        # Test temp-mail inbox (should show info message)
-        if tempmail_account:
-            try:
-                account_id = tempmail_account["id"]
-                response = await self.client.get(f"{BACKEND_URL}/accounts/{account_id}/inbox")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    if "info" in data and data.get("provider") == "temp-mail":
-                        self.log_test("Temp-mail Inbox Check", True, 
-                                    f"Correct info message: {data['info']}")
-                    else:
-                        self.log_test("Temp-mail Inbox Check", False, 
-                                    "Missing expected info message", data)
-                else:
-                    self.log_test("Temp-mail Inbox Check", False, f"HTTP {response.status_code}", 
-                                {"status": response.status_code, "text": response.text})
-            except Exception as e:
-                self.log_test("Temp-mail Inbox Check", False, f"Request error: {str(e)}")
+                self.log_test("Mail.tm Inbox Check", False, f"Request error: {str(e)}")
+        else:
+            self.log_test("Mail.tm Inbox Check", False, "No mail.tm accounts found for testing")
     
     async def run_all_tests(self):
         """Run all backend tests"""
