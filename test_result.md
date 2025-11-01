@@ -176,15 +176,18 @@ backend:
 
   - task: "Export XLSX endpoint"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Added GET /api/accounts/export/xlsx endpoint using openpyxl. Excel file with styled headers (blue background, white text) and auto-adjusted column widths. Filename: ACCOUNTS_{count}.xlsx."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: XLSX export endpoint perfect. Tested with 5 accounts - generates valid Excel file (5476 bytes), correct MIME type 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', proper filename 'ACCOUNTS_5.xlsx', valid Excel format with PK magic bytes. File can be downloaded and opened in Excel."
 
   - task: "Password generation theo yêu cầu Garena"
     implemented: true
