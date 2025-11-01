@@ -2,7 +2,6 @@ from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
@@ -18,14 +17,10 @@ from mail_tm_service import MailTmService
 import io
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
+from database import db
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
-
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
 app = FastAPI()
