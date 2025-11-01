@@ -447,8 +447,8 @@ class GarenaBackendTester:
             self.log_test("Mail.tm Inbox Check", False, "No mail.tm accounts found for testing")
     
     async def run_all_tests(self):
-        """Run all backend tests"""
-        print("🚀 Starting Garena Backend Tests...")
+        """Run all backend tests for Mail.tm integration"""
+        print("🚀 Starting Garena Backend Tests - Mail.tm Integration")
         print(f"Backend URL: {BACKEND_URL}")
         print("=" * 60)
         
@@ -458,32 +458,31 @@ class GarenaBackendTester:
             # Basic connectivity
             await self.test_root_endpoint()
             
-            # Email providers
+            # Email providers - should return only mail.tm
             await self.test_email_providers_endpoint()
             
-            # Test email provider functionality
-            await self.test_email_provider_testing("temp-mail")
-            await self.test_email_provider_testing("10minutemail")
+            # Test mail.tm provider functionality
+            await self.test_mail_tm_provider()
+            
+            # Test fallback behavior
+            await self.test_other_provider_fallback()
             
             # PRIORITY: Test password generation (Garena requirements)
             await self.test_password_generation_direct()
             await self.test_password_length_consistency()
             
-            # Test account creation with both providers
-            job1 = await self.test_account_creation(2, "10minutemail")
-            job2 = await self.test_account_creation(2, "temp-mail")
+            # Test account creation with mail.tm
+            job1 = await self.test_account_creation_mail_tm(2)
             
             # Wait for jobs to complete and check status
             if job1:
-                await self.test_job_status(job1, "10minutemail")
-            if job2:
-                await self.test_job_status(job2, "temp-mail")
+                await self.test_job_status_mail_tm(job1)
             
             # List all accounts
             await self.test_list_accounts()
             
-            # Test inbox functionality
-            await self.test_inbox_checking()
+            # Test mail.tm inbox functionality with JWT authentication
+            await self.test_mail_tm_inbox_checking()
             
         finally:
             await self.cleanup()
