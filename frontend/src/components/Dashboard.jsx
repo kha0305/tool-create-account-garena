@@ -713,6 +713,115 @@ const Dashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Email Content Dialog */}
+      <Dialog open={emailContentDialog} onOpenChange={setEmailContentDialog}>
+        <DialogContent className={`${theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} max-w-4xl max-h-[80vh]`}>
+          <DialogHeader>
+            <DialogTitle className={`flex items-center gap-2 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
+              <Mail size={24} className={theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} />
+              Chi tiết Email
+            </DialogTitle>
+            {selectedEmail && (
+              <DialogDescription className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
+                <div className="space-y-1 mt-2">
+                  <div><strong>From:</strong> {selectedEmail.from}</div>
+                  <div><strong>Subject:</strong> {selectedEmail.subject}</div>
+                  <div className="text-xs">{selectedEmail.created_at}</div>
+                </div>
+              </DialogDescription>
+            )}
+          </DialogHeader>
+
+          {loadingEmailContent ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className={`animate-spin ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`} size={32} />
+              <span className={`ml-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Đang tải nội dung...</span>
+            </div>
+          ) : selectedEmail ? (
+            <div className="space-y-4">
+              {/* View Mode Toggle */}
+              <div className="flex gap-2 border-b pb-3">
+                <Button
+                  onClick={() => setEmailViewMode('text')}
+                  variant={emailViewMode === 'text' ? 'default' : 'outline'}
+                  size="sm"
+                  className={emailViewMode === 'text' ? 'bg-blue-600 text-white' : ''}
+                >
+                  Text
+                </Button>
+                <Button
+                  onClick={() => setEmailViewMode('html')}
+                  variant={emailViewMode === 'html' ? 'default' : 'outline'}
+                  size="sm"
+                  className={emailViewMode === 'html' ? 'bg-blue-600 text-white' : ''}
+                >
+                  HTML
+                </Button>
+              </div>
+
+              {/* Email Content */}
+              <div className={`overflow-y-auto max-h-96 p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                {emailViewMode === 'text' ? (
+                  <div 
+                    className={`whitespace-pre-wrap font-mono text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+                    style={{ 
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word'
+                    }}
+                  >
+                    {selectedEmail.text ? (
+                      <div 
+                        dangerouslySetInnerHTML={{
+                          __html: selectedEmail.text.replace(
+                            /(https?:\/\/[^\s]+)/g, 
+                            '<a href="$1" target="_blank" rel="noopener noreferrer" style="text-decoration: underline; color: inherit;">$1</a>'
+                          )
+                        }}
+                      />
+                    ) : (
+                      <p className={theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}>Không có nội dung text</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className={`prose max-w-none ${theme === 'dark' ? 'prose-invert' : ''}`}>
+                    {selectedEmail.html && selectedEmail.html.length > 0 ? (
+                      <iframe
+                        srcDoc={selectedEmail.html[0] || selectedEmail.html}
+                        className="w-full h-96 border-0"
+                        title="Email HTML Content"
+                        sandbox="allow-same-origin"
+                      />
+                    ) : (
+                      <p className={theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}>Không có nội dung HTML</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Attachments */}
+              {selectedEmail.attachments && selectedEmail.attachments.length > 0 && (
+                <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                  <h4 className={`font-semibold mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>
+                    Đính kèm ({selectedEmail.attachments.length})
+                  </h4>
+                  <div className="space-y-1">
+                    {selectedEmail.attachments.map((att, idx) => (
+                      <div key={idx} className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                        📎 {att.filename || `Attachment ${idx + 1}`}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className={`text-center py-12 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+              <p>Không thể tải nội dung email</p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
