@@ -280,13 +280,37 @@ frontend:
         agent: "main"
         comment: "Updated email provider selector to only show Mail.tm. Changed default provider to mail.tm. Updated provider badge display to show Mail.tm icon. Removed conditional inbox button - now shows for all accounts since mail.tm supports inbox checking."
   
+  - task: "Email Content Viewer Dialog"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/Dashboard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Added email content viewer dialog. Click on email in inbox to view full content. Default view: TEXT with links underlined. Toggle between TEXT and HTML views. Shows attachments if present. Uses GET /api/accounts/{account_id}/inbox/{message_id}."
+
+  - task: "Export Dropdown với TXT/CSV/XLSX"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/Dashboard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Replaced single CSV export button with dropdown selector and export button. Formats: TXT (default), CSV, XLSX. Downloads files with names: ACCOUNTS_{count}.ext. Calls respective backend export endpoints."
+  
   - task: "Display email provider badge in accounts table"
     implemented: true
     working: "unknown"
     file: "/app/frontend/src/components/Dashboard.jsx"
     stuck_count: 0
     priority: "low"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
@@ -298,7 +322,7 @@ frontend:
     file: "/app/frontend/src/components/Dashboard.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
