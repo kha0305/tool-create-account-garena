@@ -141,35 +141,6 @@ const Dashboard = () => {
     }
   };
 
-  // Export to CSV
-  const handleExportCSV = () => {
-    if (accounts.length === 0) {
-      toast.error('Không có tài khoản để xuất');
-      return;
-    }
-
-    const headers = ['Username', 'Email', 'Password', 'Status', 'Created At'];
-    const rows = accounts.map(acc => [
-      acc.username,
-      acc.email,
-      acc.password,
-      acc.status,
-      new Date(acc.created_at).toLocaleString('vi-VN')
-    ]);
-
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `garena_accounts_${Date.now()}.csv`;
-    link.click();
-    toast.success('Đã xuất file CSV');
-  };
-
   // Handle verify login
   const handleVerifyLogin = (account) => {
     setSelectedAccount(account);
