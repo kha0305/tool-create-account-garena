@@ -327,7 +327,7 @@ async def verify_account_login(account_id: str):
     
     return {
         "message": "Account ready for verification",
-        "login_url": f"https://sso.garena.com/universal/login?app_id=10100&redirect_uri=https://account.garena.com/?locale_name=SG&locale=vi-VN",
+        "login_url": "https://sso.garena.com/universal/login?app_id=10100&redirect_uri=https://account.garena.com/?locale_name=SG&locale=vi-VN",
         "account": {
             "username": account["username"],
             "email": account["email"],
