@@ -50,7 +50,7 @@ class GarenaAccount(BaseModel):
 
 class CreateAccountRequest(BaseModel):
     quantity: int = Field(ge=1, le=100)
-    email_provider: str = Field(default="temp-mail")  # temp-mail or 10minutemail
+    email_provider: str = Field(default="mail.tm")  # Using mail.tm
 
 class CreationJob(BaseModel):
     model_config = ConfigDict(extra="ignore")
