@@ -347,11 +347,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "API endpoint để xem chi tiết email"
-    - "Export TXT endpoint"
-    - "Export CSV endpoint"
-    - "Export XLSX endpoint"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
