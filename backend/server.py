@@ -445,7 +445,7 @@ async def test_email_provider(provider: str):
 @api_router.get("/accounts/{account_id}/inbox/{message_id}")
 async def get_email_content(account_id: str, message_id: str):
     """Get full content of a specific email message"""
-    account = await db.garena_accounts.find_one({"id": account_id})
+    account = await db.find_account(account_id)
     
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
