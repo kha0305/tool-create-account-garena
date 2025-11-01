@@ -63,7 +63,7 @@ class GarenaBackendTester:
             self.log_test("Root Endpoint", False, f"Connection error: {str(e)}")
     
     async def test_email_providers_endpoint(self):
-        """Test GET /api/email-providers"""
+        """Test GET /api/email-providers - should return only mail.tm"""
         try:
             response = await self.client.get(f"{BACKEND_URL}/email-providers")
             
@@ -73,10 +73,15 @@ class GarenaBackendTester:
                     providers = data["providers"]
                     provider_ids = [p.get("id") for p in providers]
                     
-                    if "temp-mail" in provider_ids and "10minutemail" in provider_ids:
-                        self.log_test("Email Providers Endpoint", True, f"Found {len(providers)} providers: {provider_ids}")
+                    # Should only have mail.tm now
+                    if len(providers) == 1 and "mail.tm" in provider_ids:
+                        provider = providers[0]
+                        if provider.get("name") == "Mail.tm" and "inbox_checking" in provider.get("features", []):
+                            self.log_test("Email Providers Endpoint", True, f"✅ Only mail.tm provider found with inbox support: {provider_ids}")
+                        else:
+                            self.log_test("Email Providers Endpoint", False, f"mail.tm provider missing required features", data)
                     else:
-                        self.log_test("Email Providers Endpoint", False, f"Missing required providers. Found: {provider_ids}", data)
+                        self.log_test("Email Providers Endpoint", False, f"❌ Expected only mail.tm, found: {provider_ids}", data)
                 else:
                     self.log_test("Email Providers Endpoint", False, "Invalid response format", data)
             else:
