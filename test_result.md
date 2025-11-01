@@ -111,7 +111,7 @@ backend:
     file: "/app/backend/mail_tm_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
@@ -123,11 +123,59 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Replaced temp-mail and 10minutemail with mail.tm throughout server.py. Updated get_temp_email() function, email provider endpoints, and inbox checking logic to use MailTmService."
+
+  - task: "API endpoint để xem chi tiết email"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Added GET /api/accounts/{account_id}/inbox/{message_id} endpoint to fetch full email content including text, html, attachments. Uses mail_tm_service.get_message_content() method with JWT token authentication."
+
+  - task: "Export TXT endpoint"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Added GET /api/accounts/export/txt endpoint. Format: username|password|email|Tạo lúc: dd-mm-yy hh:mm. Filename: ACCOUNTS_{count}.txt. Returns StreamingResponse with text/plain media type."
+
+  - task: "Export CSV endpoint"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Added GET /api/accounts/export/csv endpoint. CSV format with headers: Username,Email,Password,Phone,Status,Provider,Created At. Filename: ACCOUNTS_{count}.csv."
+
+  - task: "Export XLSX endpoint"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Added GET /api/accounts/export/xlsx endpoint using openpyxl. Excel file with styled headers (blue background, white text) and auto-adjusted column widths. Filename: ACCOUNTS_{count}.xlsx."
 
   - task: "Password generation theo yêu cầu Garena"
     implemented: true
