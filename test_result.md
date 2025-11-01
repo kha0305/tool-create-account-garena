@@ -284,6 +284,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ WORKING: Inbox endpoint works correctly. Returns empty messages array for 10minutemail accounts (no emails received yet). Shows appropriate info message for temp-mail accounts (inbox checking not available)."
+      - working: true
+        agent: "testing"
+        comment: "✅ RE-TESTED LOCAL STABILITY: Inbox endpoint confirmed working perfectly with mail.tm JWT authentication. Successfully accesses inbox for mail.tm accounts, proper error handling for invalid accounts, and JWT token authentication all functioning correctly."
   
   - task: "Endpoint POST /api/test-email-provider"
     implemented: true
