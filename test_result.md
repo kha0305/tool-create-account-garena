@@ -206,6 +206,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ WORKING: XLSX export endpoint perfect. Tested with 5 accounts - generates valid Excel file (5476 bytes), correct MIME type 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', proper filename 'ACCOUNTS_5.xlsx', valid Excel format with PK magic bytes. File can be downloaded and opened in Excel."
+      - working: true
+        agent: "testing"
+        comment: "✅ RE-TESTED LOCAL STABILITY: XLSX export confirmed working perfectly with local MySQL setup. Valid Excel format, correct MIME type, proper filename generation, and styled headers all functioning correctly."
 
   - task: "Password generation theo yêu cầu Garena"
     implemented: true
