@@ -250,7 +250,7 @@ async def create_accounts(request: CreateAccountRequest, background_tasks: Backg
 @api_router.get("/accounts/job/{job_id}")
 async def get_job_status(job_id: str):
     """Get job status and created accounts"""
-    job = await db.creation_jobs.find_one({"job_id": job_id}, {"_id": 0})
+    job = await db.find_job(job_id)
     
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -259,7 +259,7 @@ async def get_job_status(job_id: str):
     accounts = []
     if job.get('accounts'):
         for account_id in job['accounts']:
-            account = await db.garena_accounts.find_one({"id": account_id}, {"_id": 0})
+            account = await db.find_account(account_id)
             if account:
                 if isinstance(account.get('created_at'), str):
                     account['created_at'] = datetime.fromisoformat(account['created_at'])
@@ -280,7 +280,7 @@ async def get_job_status(job_id: str):
 @api_router.get("/accounts", response_model=List[GarenaAccount])
 async def get_all_accounts():
     """Get all created accounts"""
-    accounts = await db.garena_accounts.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    accounts = await db.find_all_accounts(1000)
     
     for account in accounts:
         if isinstance(account.get('created_at'), str):
@@ -291,9 +291,9 @@ async def get_all_accounts():
 @api_router.delete("/accounts/{account_id}")
 async def delete_account(account_id: str):
     """Delete an account"""
-    result = await db.garena_accounts.delete_one({"id": account_id})
+    result = await db.delete_account(account_id)
     
-    if result.deleted_count == 0:
+    if result == 0:
         raise HTTPException(status_code=404, detail="Account not found")
     
     return {"message": "Account deleted successfully"}
@@ -301,8 +301,8 @@ async def delete_account(account_id: str):
 @api_router.delete("/accounts")
 async def delete_all_accounts():
     """Delete all accounts"""
-    result = await db.garena_accounts.delete_many({})
-    return {"message": f"Deleted {result.deleted_count} accounts"}
+    result = await db.delete_all_accounts()
+    return {"message": f"Deleted {result} accounts"}
 
 @api_router.get("/temp-email/test")
 async def test_temp_email():
