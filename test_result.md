@@ -373,3 +373,15 @@ agent_communication:
     2. Export Dropdown - TXT (mặc định), CSV, XLSX. Tên file: ACCOUNTS_{count}.ext
     
     Sẵn sàng test backend với các endpoints mới."
+  - agent: "testing"
+    message: "✅ BACKEND TESTING COMPLETE - All new features working perfectly:
+
+    TESTED & WORKING:
+    1. ✅ Email Content Endpoint (GET /api/accounts/{account_id}/inbox/{message_id}) - Proper error handling for invalid accounts/messages, JWT authentication working
+    2. ✅ TXT Export (GET /api/accounts/export/txt) - Exact format 'username|password|email|Tạo lúc: dd-mm-yy hh:mm', correct filename ACCOUNTS_{count}.txt
+    3. ✅ CSV Export (GET /api/accounts/export/csv) - Correct headers, proper CSV structure, filename ACCOUNTS_{count}.csv  
+    4. ✅ XLSX Export (GET /api/accounts/export/xlsx) - Valid Excel format, styled headers, filename ACCOUNTS_{count}.xlsx
+    
+    All export endpoints return proper StreamingResponse with correct Content-Disposition headers for file downloads. Mail.tm integration working with JWT tokens. Password generation meets Garena requirements (8-16 chars, mixed case, digits, symbols).
+    
+    READY FOR FRONTEND TESTING or COMPLETION."
