@@ -477,7 +477,7 @@ const Dashboard = () => {
                         </td>
                         <td className="text-xs">
                           <span className={`px-2 py-1 rounded text-xs ${theme === 'dark' ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
-                            {account.email_provider === '10minutemail' ? '⏱️ 10Min' : '📧 TempMail'}
+                            📧 Mail.tm
                           </span>
                         </td>
                         <td>
@@ -490,16 +490,15 @@ const Dashboard = () => {
                         </td>
                         <td>
                           <div className="flex gap-1">
-                            {account.email_provider === '10minutemail' && (
-                              <Button
-                                onClick={() => handleCheckInbox(account)}
-                                variant="ghost"
-                                size="sm"
-                                className={theme === 'dark' ? 'text-blue-400 hover:text-blue-300 hover:bg-blue-900/20' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'}
-                                data-testid={`check-inbox-button-${index}`}
-                                title="Kiểm tra inbox"
-                              >
-                                <Inbox size={16} />
+                            <Button
+                              onClick={() => handleCheckInbox(account)}
+                              variant="ghost"
+                              size="sm"
+                              className={theme === 'dark' ? 'text-blue-400 hover:text-blue-300 hover:bg-blue-900/20' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'}
+                              data-testid={`check-inbox-button-${index}`}
+                              title="Kiểm tra inbox"
+                            >
+                              <Inbox size={16} />
                               </Button>
                             )}
                             <Button
