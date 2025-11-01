@@ -634,6 +634,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_db():
+    """Initialize MySQL connection on startup"""
+    await db.connect()
+    logger.info("MySQL database connected")
+
 @app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+async def shutdown_db():
+    """Close MySQL connection on shutdown"""
+    await db.close()
+    logger.info("MySQL database disconnected")
