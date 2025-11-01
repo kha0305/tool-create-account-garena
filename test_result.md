@@ -107,7 +107,7 @@ user_problem_statement: "Thay thế hệ thống email providers bằng mail.tm 
 backend:
   - task: "Tích hợp Mail.tm service"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/mail_tm_service.py"
     stuck_count: 0
     priority: "high"
@@ -116,6 +116,9 @@ backend:
       - working: "unknown"
         agent: "main"
         comment: "Created MailTmService class using mail.tm API. Methods: create_account(), get_token(), get_messages(), get_message_content(), delete_account(). Uses httpx for API calls to api.mail.tm with full JWT authentication."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: Mail.tm service fully functional. Successfully creates accounts with JWT tokens, generates emails from 2200freefonts.com domain, handles authentication properly. Rate limiting (429 errors) occurs when creating multiple accounts rapidly, but individual account creation works perfectly. 6 accounts successfully created and stored in database with valid session data."
 
   - task: "Cập nhật server.py để sử dụng mail.tm"
     implemented: true
