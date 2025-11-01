@@ -427,8 +427,8 @@ async def check_account_inbox(account_id: str):
 @api_router.post("/test-email-provider")
 async def test_email_provider(provider: str):
     """Test email provider functionality"""
-    if provider not in ["temp-mail", "10minutemail"]:
-        raise HTTPException(status_code=400, detail="Invalid provider. Use 'temp-mail' or '10minutemail'")
+    if provider != "mail.tm":
+        provider = "mail.tm"  # Force mail.tm
     
     try:
         email_data = await get_temp_email(provider)
@@ -438,6 +438,7 @@ async def test_email_provider(provider: str):
             "provider": provider,
             "email": email_data['email'],
             "has_session": email_data.get('session_data') is not None,
+            "session_has_token": email_data.get('session_data', {}).get('token') is not None,
             "message": f"Successfully generated email from {provider}"
         }
     except Exception as e:
