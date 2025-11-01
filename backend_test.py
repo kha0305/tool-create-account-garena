@@ -703,6 +703,15 @@ class GarenaBackendTester:
             # Test mail.tm inbox functionality with JWT authentication
             await self.test_mail_tm_inbox_checking()
             
+            # NEW FEATURES TESTING - HIGH PRIORITY
+            print("\n🆕 Testing NEW Export Features")
+            await self.test_export_txt_endpoint()
+            await self.test_export_csv_endpoint()
+            await self.test_export_xlsx_endpoint()
+            
+            # Test email content viewing endpoint
+            await self.test_email_content_endpoint()
+            
         finally:
             await self.cleanup()
         
