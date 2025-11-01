@@ -178,7 +178,6 @@ async def process_account_creation(job_id: str, quantity: int, email_provider: s
         await asyncio.sleep(wait_time)
     
     for i in range(quantity):
-        global last_rate_limit_time
         max_retries = 3
         retry_count = 0
         success = False
