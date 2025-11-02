@@ -741,7 +741,14 @@ const Dashboard = () => {
                         </td>
                         <td className="text-sm font-mono" data-testid={`account-password-${index}`}>
                           <div className="flex items-center gap-2">
-                            <span>{showPasswords ? account.password : '••••••••'}</span>
+                            <span>{showPasswords || visiblePasswords[account.id] ? account.password : '••••••••'}</span>
+                            <button
+                              onClick={() => togglePasswordVisibility(account.id)}
+                              className={`p-1 rounded hover:bg-gray-700/50 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-800'}`}
+                              title={visiblePasswords[account.id] ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                            >
+                              {(showPasswords || visiblePasswords[account.id]) ? <EyeOff size={14} /> : <Eye size={14} />}
+                            </button>
                             <button
                               onClick={() => handleCopyToClipboard(account.password, `password-${account.id}`)}
                               className={`p-1 rounded hover:bg-gray-700/50 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-cyan-400' : 'text-gray-500 hover:text-cyan-600'}`}
