@@ -11,7 +11,7 @@ import time
 from typing import Dict, List, Optional
 
 # Configuration
-BACKEND_URL = "https://hide-show-pass.preview.emergentagent.com/api"
+BACKEND_URL = "https://email-approval-2.preview.emergentagent.com/api"
 TIMEOUT = 60.0
 
 class FocusedAccountTester:
