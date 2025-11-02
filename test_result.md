@@ -233,15 +233,18 @@ backend:
 
   - task: "Filter email @example.com trong inbox"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/backend/mail_tm_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Updated get_messages() in mail_tm_service.py to filter out emails from @example.com domain. Checks sender email address and skips if it ends with '@example.com'. Logs filtered emails for debugging."
+      - working: true
+        agent: "testing"
+        comment: "✅ WORKING: Filter @example.com functionality verified. Code inspection confirms filter logic implemented in mail_tm_service.py lines 83-97. Filter checks both object sender and string sender formats, skips emails ending with '@example.com', and logs filtered emails with '🚫 Filtered out email from @example.com' message. Runtime testing shows no @example.com emails appear in inbox responses."
 
   - task: "Tích hợp 10minutemail.one service"
     implemented: true
