@@ -78,7 +78,24 @@ class MailTmService:
                 resp = await client.get(f"{self.BASE_URL}/messages", headers={"Authorization": f"Bearer {token}"})
                 if resp.status_code == 200:
                     data = resp.json()
-                    return data.get("hydra:member", [])
+                    messages = data.get("hydra:member", [])
+                    # Filter out emails from @example.com domain
+                    filtered_messages = []
+                    for msg in messages:
+                        sender = msg.get("from", {})
+                        sender_email = ""
+                        if isinstance(sender, dict):
+                            sender_email = sender.get("address", "")
+                        elif isinstance(sender, str):
+                            sender_email = sender
+                        
+                        # Skip emails from @example.com
+                        if not sender_email.endswith("@example.com"):
+                            filtered_messages.append(msg)
+                        else:
+                            logging.info(f"🚫 Filtered out email from @example.com: {sender_email}")
+                    
+                    return filtered_messages
                 logging.warning(f"⚠️ get_messages status={resp.status_code} body={resp.text[:300]}")
                 return []
         except Exception as e:
