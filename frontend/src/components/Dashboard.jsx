@@ -48,6 +48,9 @@ const Dashboard = () => {
   // Global password visibility toggle
   const [showPasswords, setShowPasswords] = useState(false);
   
+  // State for creating replacement email
+  const [creatingReplacement, setCreatingReplacement] = useState(false);
+  
   // Custom quantity input
   const [useCustomQuantity, setUseCustomQuantity] = useState(false);
   const [customQuantity, setCustomQuantity] = useState('');
