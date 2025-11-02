@@ -823,4 +823,63 @@ agent_communication:
     - ✅ Frontend: Compiled successfully
     - ✅ Backend: Running stable
     - ✅ Mail.tm service: Working (có delay tự nhiên)"
+  
+  - agent: "user"
+    message: "không nhận mail mail @example.com. Nếu không gởi mail về cho phép tạo mail thay thế ngay bên cạnh đó"
+  - agent: "main"
+    message: "✅ ĐÃ HOÀN THÀNH YÊU CẦU MỚI:
+    
+    **1. FILTER EMAIL @example.com:**
+    
+    **Backend (mail_tm_service.py):**
+    - Sửa hàm get_messages() để filter email từ @example.com
+    - Logic: Kiểm tra sender email, nếu endswith('@example.com') → bỏ qua
+    - Log thông tin khi filter: '🚫 Filtered out email from @example.com'
+    - Return chỉ những email không phải từ @example.com
+    
+    **Frontend (Dashboard.jsx):**
+    - Thêm filter trong handleCheckInbox()
+    - Filter messages client-side để double-check
+    - Logic: Kiểm tra cả object sender và string sender
+    - Không hiển thị email @example.com trong inbox list
+    
+    **2. BUTTON 'TẠO MAIL THAY THẾ':**
+    
+    **Vị trí:** Trong Inbox Dialog, bên cạnh button 'Làm mới Inbox'
+    
+    **Frontend Implementation:**
+    - State: creatingReplacement (track loading state)
+    - Function: handleCreateReplacementEmail()
+      • Tạo 1 account mới (quantity=1)
+      • Gọi POST /api/accounts/create với email_provider='mail.tm'
+      • Poll job status để track progress
+      • Auto refresh accounts list khi completed
+      • Close inbox dialog sau khi tạo xong
+    
+    **Button Features:**
+    - Icon: Zap (⚡) để thể hiện tính năng nhanh
+    - Text: 'Tạo Mail Thay Thế'
+    - Màu: Cyan (nổi bật nhưng không quá chói)
+    - Tooltip: 'Tạo 1 tài khoản mail mới nếu không nhận được email'
+    - Loading state: 'Đang tạo...' với spinner
+    - Disabled khi đang check inbox hoặc đang tạo
+    
+    **User Flow:**
+    1. User mở inbox → Không thấy email
+    2. Click 'Tạo Mail Thay Thế'
+    3. Toast thông báo: '⏳ Đang tạo tài khoản thay thế...'
+    4. Job polling trong background
+    5. Toast thành công: '✅ Đã tạo xong tài khoản thay thế!'
+    6. Inbox dialog đóng, accounts list refresh
+    7. User có thể check inbox của account mới
+    
+    **Error Handling:**
+    - Rate limiting: Hiển thị warning về mail.tm API limits
+    - Job failed: Toast error với message rõ ràng
+    - Network error: Toast lỗi và không crash UI
+    
+    **SERVICES STATUS:**
+    - ✅ Backend: Running stable với filter logic
+    - ✅ Frontend: Compiled successfully với button mới
+    - ✅ All features ready to test"
 
