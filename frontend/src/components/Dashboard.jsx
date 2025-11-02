@@ -225,6 +225,66 @@ const Dashboard = () => {
       .catch(err => console.error(err));
   };
 
+  // Create replacement email account
+  const handleCreateReplacementEmail = async () => {
+    setCreatingReplacement(true);
+    try {
+      toast.info('⏳ Đang tạo tài khoản thay thế...', { duration: 3000 });
+      
+      const requestData = {
+        quantity: 1,
+        email_provider: 'mail.tm'
+      };
+      
+      const response = await axios.post(`${API}/accounts/create`, requestData);
+      
+      toast.success('✅ Đang tạo tài khoản mới (dự kiến ~10-15 giây)', {
+        duration: 4000
+      });
+      
+      // Poll job status and refresh accounts when done
+      const checkJob = async (jobId) => {
+        try {
+          const jobResponse = await axios.get(`${API}/jobs/${jobId}`);
+          const jobData = jobResponse.data;
+          
+          if (jobData.status === 'completed') {
+            await fetchAccounts();
+            toast.success('✅ Đã tạo xong tài khoản thay thế!');
+            setCreatingReplacement(false);
+            // Close current inbox dialog to let user check the new account
+            setInboxDialog(false);
+          } else if (jobData.status === 'failed') {
+            toast.error('❌ Tạo tài khoản thất bại. Vui lòng thử lại!');
+            setCreatingReplacement(false);
+          } else {
+            // Continue polling
+            setTimeout(() => checkJob(jobId), 2000);
+          }
+        } catch (error) {
+          console.error('Error checking job:', error);
+          setCreatingReplacement(false);
+        }
+      };
+      
+      checkJob(response.data.job_id);
+      
+    } catch (error) {
+      const errorMsg = error.response?.data?.detail || error.message || 'Lỗi không xác định';
+      
+      if (errorMsg.includes('429') || errorMsg.includes('rate limit')) {
+        toast.error('⚠️ API Mail.tm đang bị giới hạn. Vui lòng đợi 1-2 phút rồi thử lại!', {
+          duration: 6000
+        });
+      } else {
+        toast.error('❌ Lỗi khi tạo tài khoản. Vui lòng thử lại sau!');
+      }
+      
+      setCreatingReplacement(false);
+      console.error(error);
+    }
+  };
+
   // Check inbox for account
   const handleCheckInbox = async (account) => {
     setSelectedAccount(account);
