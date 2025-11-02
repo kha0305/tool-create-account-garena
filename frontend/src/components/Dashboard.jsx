@@ -294,17 +294,26 @@ const Dashboard = () => {
 
     try {
       const response = await axios.get(`${API}/accounts/${account.id}/inbox`);
-      setInboxMessages(response.data.messages || []);
+      const messages = response.data.messages || [];
+      
+      // Filter out emails from @example.com
+      const filteredMessages = messages.filter(msg => {
+        const sender = msg.from || msg.sender || '';
+        const senderEmail = typeof sender === 'object' ? (sender.address || sender.name || '') : sender;
+        return !senderEmail.includes('@example.com');
+      });
+      
+      setInboxMessages(filteredMessages);
       
       // Don't show toast for "No session data" error - it's already shown in the dialog
       if (response.data.error && response.data.error.includes('No session data')) {
         // Silent - user will see the helpful info box in the dialog
       } else if (response.data.error || response.data.info) {
         toast.info(response.data.error || response.data.info);
-      } else if (response.data.messages && response.data.messages.length === 0) {
+      } else if (filteredMessages.length === 0) {
         // Silent - empty state is shown in dialog with helpful tips
-      } else if (response.data.messages && response.data.messages.length > 0) {
-        toast.success(`Tìm thấy ${response.data.messages.length} email`);
+      } else if (filteredMessages.length > 0) {
+        toast.success(`Tìm thấy ${filteredMessages.length} email`);
       }
     } catch (error) {
       console.error('Error checking inbox:', error);
