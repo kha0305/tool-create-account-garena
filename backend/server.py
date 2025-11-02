@@ -493,6 +493,97 @@ async def update_account_status(account_id: str, status: str):
     
     return {"message": "Status updated successfully", "status": status}
 
+@api_router.put("/accounts/{account_id}/regenerate")
+async def regenerate_account_email(account_id: str):
+    """Regenerate email for an existing account - replaces email in-place"""
+    try:
+        # Get existing account
+        accounts = await db.get_all_accounts()
+        account = next((acc for acc in accounts if acc.get("id") == account_id), None)
+        
+        if not account:
+            raise HTTPException(status_code=404, detail="Account not found")
+        
+        logging.info(f"🔄 Regenerating email for account {account_id} (old: {account.get('email')})")
+        
+        # Check rate limiting
+        global last_rate_limit_time
+        current_time = time.time()
+        if current_time - last_rate_limit_time < RATE_LIMIT_COOLDOWN:
+            wait_time = int(RATE_LIMIT_COOLDOWN - (current_time - last_rate_limit_time))
+            raise HTTPException(
+                status_code=429, 
+                detail=f"Rate limited. Please wait {wait_time} seconds before trying again."
+            )
+        
+        # Generate new email with mail.tm
+        mail_service = MailTmService()
+        
+        # Generate new credentials
+        new_username = generate_username()
+        new_password = generate_password()
+        
+        # Retry logic for rate limiting
+        max_retries = 3
+        retry_delays = [5, 10, 15]  # seconds
+        
+        for attempt in range(max_retries):
+            try:
+                result = await mail_service.create_account(new_username, new_password)
+                
+                # Update account in database with new credentials
+                update_data = {
+                    "username": new_username,
+                    "email": result["email"],
+                    "password": new_password,
+                    "email_provider": "mail.tm",
+                    "email_session_data": result["session_data"],
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+                
+                success = await db.update_account(account_id, update_data)
+                
+                if not success:
+                    raise HTTPException(status_code=500, detail="Failed to update account in database")
+                
+                logging.info(f"✅ Successfully regenerated email: {result['email']}")
+                
+                return {
+                    "message": "Email regenerated successfully",
+                    "account_id": account_id,
+                    "old_email": account.get('email'),
+                    "new_email": result["email"],
+                    "new_username": new_username
+                }
+                
+            except Exception as e:
+                error_msg = str(e)
+                
+                # Check for rate limiting
+                if "429" in error_msg or "rate limit" in error_msg.lower() or "too many" in error_msg.lower():
+                    if attempt < max_retries - 1:
+                        delay = retry_delays[attempt]
+                        logging.warning(f"⚠️ Rate limited on attempt {attempt + 1}/{max_retries}. Waiting {delay}s...")
+                        last_rate_limit_time = time.time()
+                        await asyncio.sleep(delay)
+                        continue
+                    else:
+                        logging.error(f"❌ Max retries reached. Rate limiting persists.")
+                        last_rate_limit_time = time.time()
+                        raise HTTPException(
+                            status_code=429,
+                            detail="Mail.tm API rate limit reached. Please try again in 1-2 minutes."
+                        )
+                else:
+                    logging.error(f"❌ Error regenerating email: {error_msg}")
+                    raise HTTPException(status_code=500, detail=f"Failed to regenerate email: {error_msg}")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Unexpected error in regenerate_account_email: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/email-providers")
 async def get_email_providers():
     """Get list of available email providers"""
