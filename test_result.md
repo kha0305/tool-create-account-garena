@@ -422,9 +422,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Filter email @example.com trong inbox"
-    - "Button Tạo Mail Thay Thế trong Inbox Dialog"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
