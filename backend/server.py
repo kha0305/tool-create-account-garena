@@ -90,11 +90,16 @@ class JobStatus(BaseModel):
     accounts: List[GarenaAccount] = []
 
 # Helper Functions
-def generate_username() -> str:
-    """Generate random username"""
-    prefix = random.choice(['gamer', 'player', 'user', 'pro', 'master'])
-    suffix = ''.join(random.choices(string.digits, k=6))
-    return f"{prefix}{suffix}"
+def generate_username(custom_prefix: Optional[str] = None, separator: str = ".", counter: Optional[int] = None) -> str:
+    """Generate username with optional custom prefix and separator"""
+    if custom_prefix and counter is not None:
+        # Custom format: prefix + separator + counter (e.g., username1a.1)
+        return f"{custom_prefix}{separator}{counter}"
+    else:
+        # Default random username
+        prefix = random.choice(['gamer', 'player', 'user', 'pro', 'master'])
+        suffix = ''.join(random.choices(string.digits, k=6))
+        return f"{prefix}{suffix}"
 
 def generate_password() -> str:
     """
