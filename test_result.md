@@ -402,11 +402,11 @@ frontend:
 
   - task: "Button Tạo Mail Thay Thế trong Inbox Dialog"
     implemented: true
-    working: true
+    working: "unknown"
     file: "/app/frontend/src/components/Dashboard.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "unknown"
         agent: "main"
@@ -414,6 +414,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ WORKING: Replacement mail creation functionality verified. Backend API endpoint POST /api/accounts/create with quantity=1 works correctly. Job polling system functional with proper status tracking (processing → completed). Account creation completes in ~5 seconds with proper job_id return. System handles mail.tm rate limiting gracefully by creating fallback @example.com accounts when needed. All created accounts stored in database with correct email_provider='mail.tm' and session data."
+      - working: "unknown"
+        agent: "main"
+        comment: "UPDATED: Changed logic to DELETE old account after creating new one. Button text: 'Thay Thế Mail Này', loading text: 'Đang thay thế...'. Flow: Create new account → Delete old account (if successful) → Refresh list → Close dialog. Safety: Creates new before deleting old to ensure user always has at least 1 account. Error handling: If delete fails, shows warning but keeps new account."
 
 metadata:
   created_by: "main_agent"
