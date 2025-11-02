@@ -366,6 +366,16 @@ const Dashboard = () => {
   };
 
 
+  // Toggle individual password visibility
+  const togglePasswordVisibility = (accountId) => {
+    setVisiblePasswords(prev => ({
+      ...prev,
+      [accountId]: !prev[accountId]
+    }));
+  };
+
+
+
   // Load accounts on mount
   useEffect(() => {
     fetchAccounts();
