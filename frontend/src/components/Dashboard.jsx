@@ -446,19 +446,51 @@ const Dashboard = () => {
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex-1">
-                  <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Số lượng tài khoản</label>
-                  <Select value={quantity} onValueChange={setQuantity} disabled={creating}>
-                    <SelectTrigger className={`w-full ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100' : 'bg-white border-gray-300 text-gray-900'}`} data-testid="quantity-select">
-                      <SelectValue placeholder="Chọn số lượng" />
-                    </SelectTrigger>
-                    <SelectContent className={theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}>
-                      {quantities.map(q => (
-                        <SelectItem key={q} value={q.toString()} data-testid={`quantity-option-${q}`} className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>
-                          {q} tài khoản
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Số lượng tài khoản</label>
+                    <button
+                      onClick={() => {
+                        setUseCustomQuantity(!useCustomQuantity);
+                        if (useCustomQuantity) setCustomQuantity('');
+                      }}
+                      className={`text-xs ${theme === 'dark' ? 'text-cyan-400 hover:text-cyan-300' : 'text-cyan-600 hover:text-cyan-700'}`}
+                      disabled={creating}
+                    >
+                      {useCustomQuantity ? 'Dùng dropdown' : 'Nhập tùy ý'}
+                    </button>
+                  </div>
+                  
+                  {useCustomQuantity ? (
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={customQuantity}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === '' || (parseInt(value) >= 1 && parseInt(value) <= 100)) {
+                          setCustomQuantity(value);
+                          setQuantity(value);
+                        }
+                      }}
+                      placeholder="Nhập số lượng (1-100)"
+                      disabled={creating}
+                      className={`w-full px-3 py-2 rounded-md ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100 placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'} border focus:ring-2 focus:ring-cyan-500 focus:border-transparent`}
+                    />
+                  ) : (
+                    <Select value={quantity} onValueChange={(val) => {setQuantity(val); setCustomQuantity('');}} disabled={creating}>
+                      <SelectTrigger className={`w-full ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100' : 'bg-white border-gray-300 text-gray-900'}`} data-testid="quantity-select">
+                        <SelectValue placeholder="Chọn số lượng" />
+                      </SelectTrigger>
+                      <SelectContent className={theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}>
+                        {quantities.map(q => (
+                          <SelectItem key={q} value={q.toString()} data-testid={`quantity-option-${q}`} className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>
+                            {q} tài khoản
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
                 <div className="flex-1">
                   <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Dịch vụ Email</label>
