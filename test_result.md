@@ -740,3 +740,40 @@ agent_communication:
     - ✅ Backend: Running stable
     - ✅ Favicon hiển thị trên browser tab"
 
+  - agent: "user"
+    message: "sửa lại màu email content dialog cho dễ nhìn"
+  - agent: "main"
+    message: "✅ ĐÃ CẢI THIỆN MÀU SẮC EMAIL CONTENT DIALOG:
+    
+    **VẤN ĐỀ CŨ:**
+    - Text màu xám nhạt (gray-300) trên background tối → khó đọc
+    - Links màu kế thừa (inherit) → không nổi bật, khó nhận diện
+    - Low contrast gây khó khăn cho người đọc
+    
+    **ĐÃ SỬA:**
+    
+    **1. Email Content Text:**
+    - Dark mode: text-gray-300 → **text-white** (trắng sáng)
+    - Light mode: text-gray-700 → **text-gray-900** (đen đậm)
+    - Tăng độ tương phản đáng kể
+    
+    **2. Links trong Email:**
+    - Cũ: color: inherit (màu kế thừa, không rõ)
+    - Mới: **color: #3b82f6** (xanh blue-500 sáng) + **font-weight: 500**
+    - Links giờ dễ nhận diện với màu xanh nổi bật và underline
+    
+    **3. Email Details (From, Subject, Date):**
+    - From/Subject dark mode: text-gray-200 → **text-white**
+    - Date dark mode: text-gray-400 → **text-gray-300**
+    - Light mode: text-gray-800 → **text-gray-900**
+    
+    **KẾT QUẢ:**
+    - ✅ Text dễ đọc hơn nhiều với màu trắng sáng
+    - ✅ Links dễ nhận diện với màu xanh #3b82f6
+    - ✅ Contrast cao hơn cho cả dark và light mode
+    - ✅ Tuân thủ accessibility guidelines
+    
+    **SERVICES STATUS:**
+    - ✅ Frontend: Compiled successfully
+    - ✅ Backend: Running stable"
+
