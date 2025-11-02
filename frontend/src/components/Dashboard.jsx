@@ -552,6 +552,28 @@ const Dashboard = () => {
                 <CardTitle className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>Danh sách tài khoản</CardTitle>
               </div>
               <div className="flex gap-2">
+                {selectedAccounts.length > 0 && (
+                  <Button
+                    onClick={handleDeleteSelected}
+                    variant="outline"
+                    size="sm"
+                    className={theme === 'dark' ? 'bg-orange-900/20 hover:bg-orange-900/40 border-orange-700 text-orange-400' : 'bg-orange-50 hover:bg-orange-100 border-orange-300 text-orange-700'}
+                    disabled={isDeleting}
+                    data-testid="delete-selected-button"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="mr-2 animate-spin" size={16} />
+                        Đang xóa...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2" size={16} />
+                        Xóa đã chọn ({selectedAccounts.length})
+                      </>
+                    )}
+                  </Button>
+                )}
                 <Select value={exportFormat} onValueChange={setExportFormat}>
                   <SelectTrigger className={`w-32 ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100' : 'bg-white border-gray-300 text-gray-900'}`}>
                     <SelectValue />
