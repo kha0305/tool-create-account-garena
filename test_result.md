@@ -429,6 +429,9 @@ frontend:
       - working: "unknown"
         agent: "main"
         comment: "UPDATED: Changed logic to DELETE old account after creating new one. Button text: 'Thay Thế Mail Này', loading text: 'Đang thay thế...'. Flow: Create new account → Delete old account (if successful) → Refresh list → Close dialog. Safety: Creates new before deleting old to ensure user always has at least 1 account. Error handling: If delete fails, shows warning but keeps new account."
+      - working: "unknown"
+        agent: "main"
+        comment: "MAJOR UPDATE: Changed to IN-PLACE replacement. No longer creates new account and deletes old. Now calls PUT /api/accounts/{id}/regenerate which updates existing account directly. Button: 'Thay Thế Mail Này'. Flow: Close dialog → Call regenerate API → Toast shows old→new email → Refresh list → Email updated in same row. Simpler, faster, no job polling needed."
 
 metadata:
   created_by: "main_agent"
