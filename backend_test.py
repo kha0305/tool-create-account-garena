@@ -863,6 +863,15 @@ class GarenaBackendTester:
             # Test email content viewing endpoint
             await self.test_email_content_endpoint()
             
+            # NEW FEATURES FROM REVIEW REQUEST - HIGHEST PRIORITY
+            print("\n🎯 Testing LATEST Features (Filter @example.com & Replacement Mail)")
+            await self.test_filter_example_com_emails()
+            await self.test_create_replacement_mail()
+            
+            # REGRESSION TESTING
+            print("\n🔄 Regression Testing")
+            await self.test_bulk_delete_functionality()
+            
         finally:
             await self.cleanup()
         
