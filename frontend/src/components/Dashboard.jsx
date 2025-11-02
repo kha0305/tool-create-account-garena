@@ -227,9 +227,17 @@ const Dashboard = () => {
 
   // Create replacement email account
   const handleCreateReplacementEmail = async () => {
+    if (!selectedAccount) {
+      toast.error('Không tìm thấy tài khoản cần thay thế');
+      return;
+    }
+    
+    const oldAccountId = selectedAccount.id;
+    const oldEmail = selectedAccount.email;
+    
     setCreatingReplacement(true);
     try {
-      toast.info('⏳ Đang tạo tài khoản thay thế...', { duration: 3000 });
+      toast.info(`⏳ Đang tạo tài khoản mới để thay thế ${oldEmail}...`, { duration: 3000 });
       
       const requestData = {
         quantity: 1,
@@ -249,13 +257,21 @@ const Dashboard = () => {
           const jobData = jobResponse.data;
           
           if (jobData.status === 'completed') {
+            // Delete old account after new account is created successfully
+            try {
+              await axios.delete(`${API}/accounts/${oldAccountId}`);
+              toast.success(`✅ Đã thay thế ${oldEmail} bằng tài khoản mới!`);
+            } catch (deleteError) {
+              console.error('Error deleting old account:', deleteError);
+              toast.warning('⚠️ Tạo tài khoản mới thành công nhưng không xóa được tài khoản cũ');
+            }
+            
             await fetchAccounts();
-            toast.success('✅ Đã tạo xong tài khoản thay thế!');
             setCreatingReplacement(false);
             // Close current inbox dialog to let user check the new account
             setInboxDialog(false);
           } else if (jobData.status === 'failed') {
-            toast.error('❌ Tạo tài khoản thất bại. Vui lòng thử lại!');
+            toast.error('❌ Tạo tài khoản thất bại. Tài khoản cũ vẫn được giữ lại.');
             setCreatingReplacement(false);
           } else {
             // Continue polling
