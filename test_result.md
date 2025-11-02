@@ -441,6 +441,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Endpoint PUT /api/accounts/{id}/regenerate - Thay thế email in-place"
     - "Button Tạo Mail Thay Thế trong Inbox Dialog"
   stuck_tasks: []
   test_all: false
