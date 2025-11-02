@@ -231,6 +231,18 @@ backend:
         agent: "testing"
         comment: "✅ WORKING: Password generation fix verified. Tested 20+ passwords across multiple account creations. ALL passwords meet Garena requirements: 12 characters length (within 8-16 range), guaranteed lowercase, uppercase, digit, and symbol. No predictable patterns detected. Both temp-mail and 10minutemail providers generate valid passwords."
 
+  - task: "Filter email @example.com trong inbox"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/mail_tm_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Updated get_messages() in mail_tm_service.py to filter out emails from @example.com domain. Checks sender email address and skips if it ends with '@example.com'. Logs filtered emails for debugging."
+
   - task: "Tích hợp 10minutemail.one service"
     implemented: true
     working: true
