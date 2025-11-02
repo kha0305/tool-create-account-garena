@@ -990,6 +990,95 @@ agent_communication:
     - ✅ Frontend: Restarted successfully
     - ✅ Backend: Running stable
     - ✅ Ready for testing"
+  
+  - agent: "user"
+    message: "không tạo tài khoản mới mà thay thế vào mục mail cũ"
+  - agent: "main"
+    message: "✅ ĐÃ THAY ĐỔI HOÀN TOÀN: THAY THẾ IN-PLACE (KHÔNG TẠO ACCOUNT MỚI):
+    
+    **BACKEND - Endpoint Mới:**
+    
+    **PUT /api/accounts/{account_id}/regenerate**
+    - Giữ nguyên account_id
+    - Generate email mới với mail.tm (username + password mới)
+    - UPDATE trực tiếp vào database:
+      • username → new_username
+      • email → new_email
+      • password → new_password
+      • email_session_data → new JWT token
+      • updated_at → timestamp
+    - Rate limiting protection với retry logic
+    - Returns: old_email, new_email, new_username
+    
+    **Logic Chi Tiết:**
+    ```python
+    1. Lấy account hiện tại từ database (by account_id)
+    2. Generate credentials mới (username, password)
+    3. Tạo mail.tm account mới với credentials mới
+    4. UPDATE account trong database (giữ nguyên ID)
+    5. Return thông tin old_email → new_email
+    ```
+    
+    **FRONTEND - Logic Mới:**
+    
+    **handleCreateReplacementEmail():**
+    - Đơn giản hơn nhiều, không cần job polling
+    - Gọi PUT /api/accounts/{accountId}/regenerate
+    - Toast hiển thị: old_email → new_email
+    - Refresh accounts list → Email được update tại chỗ
+    - Close dialog ngay khi xong
+    
+    **Flow Đơn Giản:**
+    ```
+    1. User click 'Thay Thế Mail Này'
+    2. Dialog đóng ngay
+    3. Toast: '⏳ Đang tạo email mới để thay thế {old_email}...'
+    4. Call API: PUT /api/accounts/{id}/regenerate
+    5. API response trong ~5-10 giây
+    6. Toast: '✅ Đã thay thế thành công! old@mail.com → new@mail.com'
+    7. Refresh list → Email updated in same row
+    ```
+    
+    **SO SÁNH VỚI TRƯỚC:**
+    
+    **TRƯỚC (Tạo mới + Xóa cũ):**
+    - ❌ Tạo account mới với ID mới
+    - ❌ Xóa account cũ
+    - ❌ Số lượng accounts thay đổi tạm thời
+    - ❌ Phức tạp: job polling, delete logic
+    
+    **SAU (Thay thế in-place):**
+    - ✅ Giữ nguyên account ID
+    - ✅ UPDATE trực tiếp trong database
+    - ✅ Số lượng accounts không đổi
+    - ✅ Đơn giản: 1 API call, không cần polling
+    - ✅ Vị trí trong table giữ nguyên
+    
+    **UI/UX IMPROVEMENTS:**
+    - Email thay đổi ngay tại vị trí cũ
+    - Không có account mới xuất hiện
+    - Username, password đều được update
+    - Checkbox selection, sorting giữ nguyên vị trí
+    
+    **SAFETY FEATURES:**
+    - Validation account_id tồn tại
+    - Rate limiting protection
+    - Retry logic (3 attempts với delays 5s, 10s, 15s)
+    - Transaction-like update (all fields updated together)
+    - Error handling: 404, 429, 500
+    
+    **KẾT QUẢ:**
+    - ✅ User thấy email thay đổi TẠI CHỖ trong table
+    - ✅ Không có account mới được tạo
+    - ✅ Account ID giữ nguyên
+    - ✅ Nhanh hơn: không cần job polling
+    - ✅ UX tốt hơn: rõ ràng đây là REPLACE, không phải ADD + DELETE
+    
+    **SERVICES STATUS:**
+    - ✅ Backend: Restarted với endpoint PUT /api/accounts/{id}/regenerate
+    - ✅ Frontend: Restarted với logic mới (no polling)
+    - ✅ Database: update_account method hoạt động perfect
+    - ✅ Ready for testing"
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETE - All New Features Working Perfectly:
 
