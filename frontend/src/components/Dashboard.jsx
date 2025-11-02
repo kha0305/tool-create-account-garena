@@ -1038,7 +1038,7 @@ const Dashboard = () => {
                 size="sm"
                 className={`${theme === 'dark' ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-cyan-500 hover:bg-cyan-600'} text-white`}
                 disabled={checkingInbox || creatingReplacement}
-                title="Tạo tài khoản mới và XÓA tài khoản này nếu không nhận được email"
+                title="Thay thế email của tài khoản này bằng email mới (giữ nguyên ID)"
               >
                 {creatingReplacement ? (
                   <>
