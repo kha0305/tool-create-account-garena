@@ -974,11 +974,11 @@ const Dashboard = () => {
               Chi tiết Email
             </DialogTitle>
             {selectedEmail && (
-              <DialogDescription className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
+              <DialogDescription className={theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}>
                 <div className="space-y-1 mt-2">
-                  <div className={theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}><strong>From:</strong> {typeof selectedEmail.from === 'object' ? (selectedEmail.from?.address || selectedEmail.from?.name || 'Unknown') : selectedEmail.from}</div>
-                  <div className={theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}><strong>Subject:</strong> {selectedEmail.subject}</div>
-                  <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{selectedEmail.created_at}</div>
+                  <div className={theme === 'dark' ? 'text-white' : 'text-gray-900'}><strong>From:</strong> {typeof selectedEmail.from === 'object' ? (selectedEmail.from?.address || selectedEmail.from?.name || 'Unknown') : selectedEmail.from}</div>
+                  <div className={theme === 'dark' ? 'text-white' : 'text-gray-900'}><strong>Subject:</strong> {selectedEmail.subject}</div>
+                  <div className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{selectedEmail.created_at}</div>
                 </div>
               </DialogDescription>
             )}
