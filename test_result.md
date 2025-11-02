@@ -924,6 +924,68 @@ agent_communication:
     - ✅ Backend: Running stable với filter logic
     - ✅ Frontend: Compiled successfully với button mới
     - ✅ All features ready to test"
+  
+  - agent: "user"
+    message: "khi tạo mail mới thì thay thế email cũ"
+  - agent: "main"
+    message: "✅ ĐÃ CẬP NHẬT LOGIC THAY THẾ EMAIL:
+    
+    **THAY ĐỔI CHÍNH:**
+    
+    **1. Logic Thay Thế (handleCreateReplacementEmail):**
+    - Lưu oldAccountId và oldEmail từ selectedAccount
+    - Tạo tài khoản mới trước
+    - Sau khi tạo thành công (job completed) → XÓA tài khoản cũ
+    - Nếu xóa thất bại → Warning nhưng vẫn giữ account mới
+    - Nếu tạo thất bại → Giữ nguyên tài khoản cũ
+    
+    **2. Flow Chi Tiết:**
+    ```
+    1. User click 'Thay Thế Mail Này' trong inbox dialog
+    2. System lưu thông tin account cũ (id + email)
+    3. Toast: '⏳ Đang tạo tài khoản mới để thay thế {old_email}...'
+    4. Gọi API tạo account mới (quantity=1)
+    5. Poll job status với interval 2s
+    6. Khi job completed:
+       a. Xóa account cũ: DELETE /api/accounts/{oldAccountId}
+       b. Toast: '✅ Đã thay thế {old_email} bằng tài khoản mới!'
+       c. Refresh accounts list
+       d. Close inbox dialog
+    7. Nếu job failed:
+       - Toast: '❌ Tạo tài khoản thất bại. Tài khoản cũ vẫn được giữ lại.'
+       - Không xóa account cũ
+    ```
+    
+    **3. UI Updates:**
+    - Button text: 'Tạo Mail Thay Thế' → **'Thay Thế Mail Này'**
+    - Loading text: 'Đang tạo...' → **'Đang thay thế...'**
+    - Tooltip: 'Tạo tài khoản mới và XÓA tài khoản này nếu không nhận được email'
+    - Toast messages cập nhật để rõ ràng về việc thay thế
+    
+    **4. Error Handling:**
+    - Nếu không có selectedAccount → Toast error
+    - Nếu tạo mới thành công nhưng xóa cũ thất bại:
+      • Toast warning: '⚠️ Tạo tài khoản mới thành công nhưng không xóa được tài khoản cũ'
+      • User có cả 2 accounts (không mất data)
+    - Nếu tạo mới thất bại:
+      • Toast error rõ ràng
+      • Account cũ được giữ nguyên
+    
+    **5. Safety Features:**
+    - Tạo mới TRƯỚC, xóa cũ SAU → Đảm bảo user luôn có ít nhất 1 account
+    - Delete error được catch → Không crash app
+    - Validation selectedAccount trước khi thực hiện
+    
+    **KẾT QUẢ:**
+    - ✅ User click button → Account cũ bị xóa, account mới thay thế
+    - ✅ An toàn: Tạo mới trước, xóa cũ sau
+    - ✅ Thông báo rõ ràng cho user
+    - ✅ Error handling đầy đủ
+    
+    **SERVICES STATUS:**
+    - ✅ Frontend: Restarted successfully
+    - ✅ Backend: Running stable
+    - ✅ Ready for testing"
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETE - All New Features Working Perfectly:
 
