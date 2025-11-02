@@ -42,8 +42,8 @@ const Dashboard = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  // Password visibility state
-  const [showPasswords, setShowPasswords] = useState(false);
+  // Password visibility state - track individual passwords
+  const [visiblePasswords, setVisiblePasswords] = useState({});
   
   // Custom quantity input
   const [useCustomQuantity, setUseCustomQuantity] = useState(false);
