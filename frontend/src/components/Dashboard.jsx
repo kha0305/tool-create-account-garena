@@ -232,58 +232,25 @@ const Dashboard = () => {
       return;
     }
     
-    const oldAccountId = selectedAccount.id;
+    const accountId = selectedAccount.id;
     const oldEmail = selectedAccount.email;
     
     setCreatingReplacement(true);
+    setInboxDialog(false); // Close dialog while regenerating
+    
     try {
-      toast.info(`⏳ Đang tạo tài khoản mới để thay thế ${oldEmail}...`, { duration: 3000 });
+      toast.info(`⏳ Đang tạo email mới để thay thế ${oldEmail}...`, { duration: 3000 });
       
-      const requestData = {
-        quantity: 1,
-        email_provider: 'mail.tm'
-      };
+      // Call regenerate endpoint - updates account in-place
+      const response = await axios.put(`${API}/accounts/${accountId}/regenerate`);
       
-      const response = await axios.post(`${API}/accounts/create`, requestData);
-      
-      toast.success('✅ Đang tạo tài khoản mới (dự kiến ~10-15 giây)', {
-        duration: 4000
+      toast.success(`✅ Đã thay thế thành công!\n${oldEmail} → ${response.data.new_email}`, {
+        duration: 5000
       });
       
-      // Poll job status and refresh accounts when done
-      const checkJob = async (jobId) => {
-        try {
-          const jobResponse = await axios.get(`${API}/jobs/${jobId}`);
-          const jobData = jobResponse.data;
-          
-          if (jobData.status === 'completed') {
-            // Delete old account after new account is created successfully
-            try {
-              await axios.delete(`${API}/accounts/${oldAccountId}`);
-              toast.success(`✅ Đã thay thế ${oldEmail} bằng tài khoản mới!`);
-            } catch (deleteError) {
-              console.error('Error deleting old account:', deleteError);
-              toast.warning('⚠️ Tạo tài khoản mới thành công nhưng không xóa được tài khoản cũ');
-            }
-            
-            await fetchAccounts();
-            setCreatingReplacement(false);
-            // Close current inbox dialog to let user check the new account
-            setInboxDialog(false);
-          } else if (jobData.status === 'failed') {
-            toast.error('❌ Tạo tài khoản thất bại. Tài khoản cũ vẫn được giữ lại.');
-            setCreatingReplacement(false);
-          } else {
-            // Continue polling
-            setTimeout(() => checkJob(jobId), 2000);
-          }
-        } catch (error) {
-          console.error('Error checking job:', error);
-          setCreatingReplacement(false);
-        }
-      };
-      
-      checkJob(response.data.job_id);
+      // Refresh accounts list to show updated email
+      await fetchAccounts();
+      setCreatingReplacement(false);
       
     } catch (error) {
       const errorMsg = error.response?.data?.detail || error.message || 'Lỗi không xác định';
@@ -292,8 +259,10 @@ const Dashboard = () => {
         toast.error('⚠️ API Mail.tm đang bị giới hạn. Vui lòng đợi 1-2 phút rồi thử lại!', {
           duration: 6000
         });
+      } else if (errorMsg.includes('404')) {
+        toast.error('❌ Không tìm thấy tài khoản cần thay thế');
       } else {
-        toast.error('❌ Lỗi khi tạo tài khoản. Vui lòng thử lại sau!');
+        toast.error(`❌ Lỗi khi thay thế email: ${errorMsg}`);
       }
       
       setCreatingReplacement(false);
