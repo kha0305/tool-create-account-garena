@@ -710,18 +710,6 @@ const Dashboard = () => {
                             </button>
                           </div>
                         </td>
-                        <td className="text-sm" data-testid={`account-email-${index}`}>
-                          <div className="flex items-center gap-2">
-                            <span className="truncate max-w-[200px]">{account.email}</span>
-                            <button
-                              onClick={() => handleCopyToClipboard(account.email, `email-${account.id}`)}
-                              className={`p-1 rounded hover:bg-gray-700/50 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-cyan-400' : 'text-gray-500 hover:text-cyan-600'}`}
-                              title="Sao chép email"
-                            >
-                              {copiedItems[`email-${account.id}`] ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                            </button>
-                          </div>
-                        </td>
                         <td className="text-sm font-mono" data-testid={`account-password-${index}`}>
                           <div className="flex items-center gap-2">
                             <span>{showPasswords ? account.password : '••••••••'}</span>
@@ -731,6 +719,18 @@ const Dashboard = () => {
                               title="Sao chép password"
                             >
                               {copiedItems[`password-${account.id}`] ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="text-sm" data-testid={`account-email-${index}`}>
+                          <div className="flex items-center gap-2">
+                            <span className="truncate max-w-[200px]">{account.email}</span>
+                            <button
+                              onClick={() => handleCopyToClipboard(account.email, `email-${account.id}`)}
+                              className={`p-1 rounded hover:bg-gray-700/50 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-cyan-400' : 'text-gray-500 hover:text-cyan-600'}`}
+                              title="Sao chép email"
+                            >
+                              {copiedItems[`email-${account.id}`] ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
                             </button>
                           </div>
                         </td>
