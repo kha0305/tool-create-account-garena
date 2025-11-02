@@ -692,7 +692,7 @@ const Dashboard = () => {
                           {message.subject || 'No Subject'}
                         </div>
                         <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                          From: {message.sender || message.from || 'Unknown'}
+                          From: {typeof message.from === 'object' ? (message.from?.address || message.from?.name || 'Unknown') : (message.sender || message.from || 'Unknown')}
                         </div>
                       </div>
                       <div className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
