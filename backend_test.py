@@ -664,6 +664,157 @@ class GarenaBackendTester:
                             {"status": response.status_code, "text": response.text})
         except Exception as e:
             self.log_test("Export XLSX Endpoint", False, f"Request error: {str(e)}")
+
+    async def test_filter_example_com_emails(self):
+        """Test that emails from @example.com are filtered out in inbox"""
+        if not self.created_accounts:
+            self.log_test("Filter @example.com Emails", False, "No accounts available for testing")
+            return
+        
+        # Find mail.tm account with session data
+        mail_tm_account = None
+        for account in self.created_accounts:
+            if (account.get("email_provider") == "mail.tm" and 
+                account.get("email_session_data") and 
+                account.get("email_session_data", {}).get("token")):
+                mail_tm_account = account
+                break
+        
+        if not mail_tm_account:
+            self.log_test("Filter @example.com Emails", False, "No mail.tm account with token found for testing")
+            return
+        
+        try:
+            account_id = mail_tm_account["id"]
+            response = await self.client.get(f"{BACKEND_URL}/accounts/{account_id}/inbox")
+            
+            if response.status_code == 200:
+                data = response.json()
+                messages = data.get("messages", [])
+                
+                # Check that no messages are from @example.com
+                example_com_messages = []
+                for msg in messages:
+                    sender = msg.get("from", {})
+                    sender_email = ""
+                    if isinstance(sender, dict):
+                        sender_email = sender.get("address", "")
+                    elif isinstance(sender, str):
+                        sender_email = sender
+                    
+                    if sender_email.endswith("@example.com"):
+                        example_com_messages.append(sender_email)
+                
+                if len(example_com_messages) == 0:
+                    self.log_test("Filter @example.com Emails", True, 
+                                f"✅ No @example.com emails found in inbox (filter working). Total messages: {len(messages)}")
+                else:
+                    self.log_test("Filter @example.com Emails", False, 
+                                f"❌ Found {len(example_com_messages)} @example.com emails: {example_com_messages}")
+            else:
+                self.log_test("Filter @example.com Emails", False, f"HTTP {response.status_code}", 
+                            {"status": response.status_code, "text": response.text})
+        except Exception as e:
+            self.log_test("Filter @example.com Emails", False, f"Request error: {str(e)}")
+
+    async def test_create_replacement_mail(self):
+        """Test creating 1 replacement account (for 'Tạo Mail Thay Thế' button)"""
+        try:
+            # Test creating exactly 1 account (replacement mail functionality)
+            payload = {
+                "quantity": 1,
+                "email_provider": "mail.tm"
+            }
+            response = await self.client.post(f"{BACKEND_URL}/accounts/create", json=payload)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "job_id" in data and data.get("email_provider") == "mail.tm":
+                    job_id = data["job_id"]
+                    self.job_ids.append(job_id)
+                    
+                    # Wait for job completion
+                    max_wait = 60  # 60 seconds max wait
+                    wait_time = 0
+                    job_completed = False
+                    
+                    while wait_time < max_wait and not job_completed:
+                        await asyncio.sleep(5)
+                        wait_time += 5
+                        
+                        job_response = await self.client.get(f"{BACKEND_URL}/accounts/job/{job_id}")
+                        if job_response.status_code == 200:
+                            job_data = job_response.json()
+                            status = job_data.get("status")
+                            completed = job_data.get("completed", 0)
+                            
+                            if status == "completed" and completed >= 1:
+                                job_completed = True
+                                accounts = job_data.get("accounts", [])
+                                
+                                if len(accounts) >= 1:
+                                    account = accounts[0]
+                                    self.created_accounts.append(account)
+                                    
+                                    # Verify account details
+                                    email = account.get("email", "")
+                                    provider = account.get("email_provider", "")
+                                    session_data = account.get("email_session_data", {})
+                                    
+                                    if provider == "mail.tm" and session_data.get("token"):
+                                        self.log_test("Create Replacement Mail", True, 
+                                                    f"✅ Replacement account created successfully: {email}, job completed in {wait_time}s")
+                                    else:
+                                        self.log_test("Create Replacement Mail", False, 
+                                                    f"❌ Account created but missing required data: provider={provider}, has_token={bool(session_data.get('token'))}")
+                                else:
+                                    self.log_test("Create Replacement Mail", False, 
+                                                f"❌ Job completed but no accounts returned")
+                                break
+                    
+                    if not job_completed:
+                        self.log_test("Create Replacement Mail", False, 
+                                    f"❌ Job did not complete within {max_wait}s timeout")
+                else:
+                    self.log_test("Create Replacement Mail", False, 
+                                "Missing job_id or wrong provider in response", data)
+            else:
+                self.log_test("Create Replacement Mail", False, 
+                            f"HTTP {response.status_code}", {"status": response.status_code, "text": response.text})
+        except Exception as e:
+            self.log_test("Create Replacement Mail", False, f"Request error: {str(e)}")
+
+    async def test_bulk_delete_functionality(self):
+        """Test bulk delete functionality (regression test)"""
+        if len(self.created_accounts) < 2:
+            self.log_test("Bulk Delete Functionality", False, "Need at least 2 accounts for bulk delete test")
+            return
+        
+        try:
+            # Get account IDs to delete (delete first 2 accounts)
+            account_ids = [acc["id"] for acc in self.created_accounts[:2]]
+            
+            # Test bulk delete endpoint
+            response = await self.client.post(f"{BACKEND_URL}/accounts/delete-multiple", json=account_ids)
+            
+            if response.status_code == 200:
+                data = response.json()
+                deleted_count = data.get("deleted_count", 0)
+                
+                if deleted_count == len(account_ids):
+                    self.log_test("Bulk Delete Functionality", True, 
+                                f"✅ Successfully deleted {deleted_count} accounts via bulk delete")
+                    
+                    # Remove deleted accounts from our tracking
+                    self.created_accounts = self.created_accounts[2:]
+                else:
+                    self.log_test("Bulk Delete Functionality", False, 
+                                f"❌ Expected to delete {len(account_ids)} accounts, but deleted {deleted_count}")
+            else:
+                self.log_test("Bulk Delete Functionality", False, f"HTTP {response.status_code}", 
+                            {"status": response.status_code, "text": response.text})
+        except Exception as e:
+            self.log_test("Bulk Delete Functionality", False, f"Request error: {str(e)}")
     
     async def run_all_tests(self):
         """Run all backend tests for Mail.tm integration"""
