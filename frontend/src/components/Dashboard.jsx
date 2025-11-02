@@ -751,7 +751,7 @@ const Dashboard = () => {
             {selectedEmail && (
               <DialogDescription className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
                 <div className="space-y-1 mt-2">
-                  <div><strong>From:</strong> {selectedEmail.from}</div>
+                  <div><strong>From:</strong> {typeof selectedEmail.from === 'object' ? (selectedEmail.from?.address || selectedEmail.from?.name || 'Unknown') : selectedEmail.from}</div>
                   <div><strong>Subject:</strong> {selectedEmail.subject}</div>
                   <div className="text-xs">{selectedEmail.created_at}</div>
                 </div>
