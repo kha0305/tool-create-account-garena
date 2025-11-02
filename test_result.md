@@ -468,7 +468,7 @@ agent_communication:
     
     **RESULT:** 
     - Frontend compiled successfully và đang chạy trên http://localhost:3000
-    - Backend API connection: https://email-approval-2.preview.emergentagent.com/api
+    - Backend API connection: https://mail-account-switch.preview.emergentagent.com/api
     - Tất cả dependencies đã được cài đặt đúng
     
     Sẵn sàng test frontend để xác nhận tính năng tạo tài khoản hoạt động."
@@ -666,7 +666,7 @@ agent_communication:
     - JWT token authentication functioning properly
 
     **PRODUCTION ENVIRONMENT STATUS:**
-    - Backend API: RUNNING (https://email-approval-2.preview.emergentagent.com/api)
+    - Backend API: RUNNING (https://mail-account-switch.preview.emergentagent.com/api)
     - Database: Multiple accounts stored successfully with complete session data
     - Mail.tm Integration: Fully operational with 2200freefonts.com domain emails
 
