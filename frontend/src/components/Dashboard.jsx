@@ -668,7 +668,6 @@ const Dashboard = () => {
                         />
                       </th>
                       <th>Username</th>
-                      <th>Email</th>
                       <th>
                         <div className="flex items-center gap-2 justify-center">
                           <span>Mật khẩu</span>
@@ -681,6 +680,7 @@ const Dashboard = () => {
                           </button>
                         </div>
                       </th>
+                      <th>Email</th>
                       <th>Provider</th>
                       <th>Trạng thái</th>
                       <th>Ngày tạo</th>
