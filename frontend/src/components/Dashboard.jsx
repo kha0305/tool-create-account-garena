@@ -227,7 +227,7 @@ const Dashboard = () => {
     setSelectedEmail(null);
     setLoadingEmailContent(true);
     setEmailContentDialog(true);
-    setEmailViewMode('text'); // Default to text view
+    setEmailViewMode('html'); // Default to HTML view
 
     try {
       const response = await axios.get(`${API}/accounts/${selectedAccount.id}/inbox/${message.id}`);
