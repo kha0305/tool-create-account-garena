@@ -12,7 +12,7 @@ import re
 from typing import Dict, List, Optional
 
 # Configuration
-BACKEND_URL = "https://login-register-issue.preview.emergentagent.com/api"
+BACKEND_URL = "https://color-fix-2.preview.emergentagent.com/api"
 TIMEOUT = 30.0
 
 class GarenaBackendTester:
