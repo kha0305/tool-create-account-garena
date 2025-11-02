@@ -12,7 +12,7 @@ import re
 from typing import Dict, List, Optional
 
 # Configuration
-BACKEND_URL = "https://email-approval-2.preview.emergentagent.com/api"
+BACKEND_URL = "http://localhost:8001/api"
 TIMEOUT = 30.0
 
 class GarenaBackendTester:
