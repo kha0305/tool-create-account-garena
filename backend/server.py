@@ -349,6 +349,11 @@ async def create_accounts(request: CreateAccountRequest, background_tasks: Backg
     if request.email_provider != "mail.tm":
         request.email_provider = "mail.tm"  # Force mail.tm
     
+    # Validate username_separator if provided
+    valid_separators = [".", "-", "_", "*", "/", "+"]
+    if request.username_separator not in valid_separators:
+        request.username_separator = "."
+    
     # Create job
     job = CreationJob(total=request.quantity)
     job_dict = job.model_dump()
@@ -356,8 +361,15 @@ async def create_accounts(request: CreateAccountRequest, background_tasks: Backg
     
     await db.insert_job(job_dict)
     
-    # Start background task with email provider
-    background_tasks.add_task(process_account_creation, job.job_id, request.quantity, request.email_provider)
+    # Start background task with email provider and username customization
+    background_tasks.add_task(
+        process_account_creation, 
+        job.job_id, 
+        request.quantity, 
+        request.email_provider,
+        request.username_prefix,
+        request.username_separator
+    )
     
     return {
         "job_id": job.job_id,
