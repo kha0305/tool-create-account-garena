@@ -724,7 +724,7 @@ const Dashboard = () => {
                         </td>
                         <td className="text-sm font-mono" data-testid={`account-password-${index}`}>
                           <div className="flex items-center gap-2">
-                            <span>{account.password}</span>
+                            <span>{showPasswords ? account.password : '••••••••'}</span>
                             <button
                               onClick={() => handleCopyToClipboard(account.password, `password-${account.id}`)}
                               className={`p-1 rounded hover:bg-gray-700/50 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-cyan-400' : 'text-gray-500 hover:text-cyan-600'}`}
