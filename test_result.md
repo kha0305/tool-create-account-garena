@@ -312,15 +312,18 @@ backend:
 frontend:
   - task: "Cập nhật UI để sử dụng mail.tm"
     implemented: true
-    working: "unknown"
+    working: true
     file: "/app/frontend/src/components/Dashboard.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "unknown"
         agent: "main"
         comment: "Updated email provider selector to only show Mail.tm. Changed default provider to mail.tm. Updated provider badge display to show Mail.tm icon. Removed conditional inbox button - now shows for all accounts since mail.tm supports inbox checking."
+      - working: true
+        agent: "main"
+        comment: "Fixed environment variable issue. Changed from REACT_APP_BACKEND_URL to VITE_API_BASE_URL in .env file since this is a Vite project. Frontend can now connect to backend API successfully."
   
   - task: "Email Content Viewer Dialog"
     implemented: true
