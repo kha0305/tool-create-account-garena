@@ -128,6 +128,18 @@ class MongoDatabase:
             logger.error(f"❌ Error deleting all accounts: {e}")
             return 0
 
+    async def delete_multiple_accounts(self, account_ids: list) -> int:
+        """Delete multiple accounts by IDs"""
+        try:
+            if not account_ids:
+                return 0
+            result = await self.db.garena_accounts.delete_many({"id": {"$in": account_ids}})
+            return result.deleted_count
+        except Exception as e:
+            logger.error(f"❌ Error deleting multiple accounts: {e}")
+            return 0
+
+
     # ========== CREATION JOBS ==========
     async def insert_job(self, job_data: Dict[str, Any]) -> bool:
         """Insert a new job"""
