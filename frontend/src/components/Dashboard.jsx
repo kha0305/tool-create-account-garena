@@ -45,6 +45,9 @@ const Dashboard = () => {
   // Password visibility state - track individual passwords
   const [visiblePasswords, setVisiblePasswords] = useState({});
   
+  // Global password visibility toggle
+  const [showPasswords, setShowPasswords] = useState(false);
+  
   // Custom quantity input
   const [useCustomQuantity, setUseCustomQuantity] = useState(false);
   const [customQuantity, setCustomQuantity] = useState('');
