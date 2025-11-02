@@ -956,6 +956,7 @@ const Dashboard = () => {
               size="sm"
               className={theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}
               disabled={checkingInbox}
+              title="Click để kiểm tra email mới. Email có thể mất 2-5 phút để đến."
             >
               {checkingInbox ? (
                 <>
@@ -965,12 +966,12 @@ const Dashboard = () => {
               ) : (
                 <>
                   <Inbox className="mr-2" size={16} />
-                  Làm mới
+                  Làm mới Inbox
                 </>
               )}
             </Button>
-            <span className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-600'}`}>
-              {inboxMessages.length} email
+            <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+              {inboxMessages.length > 0 ? `${inboxMessages.length} email` : 'Chưa có email'}
             </span>
           </div>
         </DialogContent>
