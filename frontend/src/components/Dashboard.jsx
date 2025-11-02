@@ -1069,17 +1069,17 @@ const Dashboard = () => {
                 size="sm"
                 className={`${theme === 'dark' ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-cyan-500 hover:bg-cyan-600'} text-white`}
                 disabled={checkingInbox || creatingReplacement}
-                title="Tạo 1 tài khoản mail mới nếu không nhận được email"
+                title="Tạo tài khoản mới và XÓA tài khoản này nếu không nhận được email"
               >
                 {creatingReplacement ? (
                   <>
                     <Loader2 className="mr-2 animate-spin" size={16} />
-                    Đang tạo...
+                    Đang thay thế...
                   </>
                 ) : (
                   <>
                     <Zap className="mr-2" size={16} />
-                    Tạo Mail Thay Thế
+                    Thay Thế Mail Này
                   </>
                 )}
               </Button>
