@@ -609,3 +609,49 @@ agent_communication:
     - Mail.tm Integration: Fully operational with 2200freefonts.com domain emails
 
     **CONCLUSION:** Account creation functionality is working correctly. The system successfully creates accounts, stores them in database, handles rate limiting gracefully, and provides proper JWT-authenticated inbox access."
+
+  - agent: "user"
+    message: "chỉnh lại cho dễ đọc chứ nó trùng màu và thêm tính năng tạo theo username tùy chỉnh ví dụ người dùng nhập username1a thì tạo ra username1a.1 và cho thêm ô chọn xóa tài khoản muốn xóa"
+  - agent: "main"
+    message: "✅ ĐÃ HOÀN THÀNH TẤT CẢ YÊU CẦU:
+    
+    **1. FIX MÀU SẮC EMAIL DIALOG:**
+    - Đổi màu text trong email details dialog từ xanh dương sang trắng/xám sáng để dễ đọc
+    - Cải thiện contrast cho cả dark và light theme
+    
+    **2. TÍNH NĂNG USERNAME TÙY CHỈNH:**
+    
+    **Backend Changes:**
+    - Updated CreateAccountRequest: Thêm username_prefix (Optional) và username_separator (. - _ * / +)
+    - Modified generate_username(): Nhận prefix và separator, tạo format {prefix}{separator}{số_thứ_tự}
+    - Updated process_account_creation(): Truyền prefix/separator và counter cho mỗi account
+    - Validation: Chỉ cho phép 6 separators: . - _ * / +
+    
+    **Frontend Changes:**
+    - Thêm input field cho username prefix (tùy chọn)
+    - Thêm dropdown chọn separator với 6 options
+    - UI với helper text giải thích format
+    - Logic: Nếu có prefix → gửi lên backend, nếu không → tạo random như cũ
+    - Ví dụ: Nhập 'username1a' với separator '.' → Tạo username1a.1, username1a.2, username1a.3...
+    
+    **3. BULK DELETE FEATURE:**
+    
+    **Backend Changes:**
+    - Added delete_multiple_accounts() method trong database.py (MongoDB)
+    - Added POST /api/accounts/delete-multiple endpoint
+    - Returns deleted count và success message
+    
+    **Frontend Changes:**
+    - Thêm checkbox column đầu tiên trong accounts table
+    - Checkbox \"Select All\" trong table header
+    - Button \"Xóa đã chọn ({count})\" hiển thị khi có accounts được chọn
+    - Confirmation dialog trước khi xóa
+    - State management với selectedAccounts array
+    - Loading state khi đang xóa
+    
+    **SERVICES STATUS:**
+    - ✅ Backend: RUNNING với tất cả endpoints mới
+    - ✅ Frontend: RUNNING với UI mới
+    - ✅ MongoDB: RUNNING
+    
+    Tất cả tính năng đã sẵn sàng để test!"
