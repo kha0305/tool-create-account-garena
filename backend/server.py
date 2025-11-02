@@ -435,6 +435,21 @@ async def delete_all_accounts():
     result = await db.delete_all_accounts()
     return {"message": f"Deleted {result} accounts"}
 
+
+@api_router.post("/accounts/delete-multiple")
+async def delete_multiple_accounts(account_ids: List[str]):
+    """Delete multiple accounts by IDs"""
+    if not account_ids:
+        raise HTTPException(status_code=400, detail="No account IDs provided")
+    
+    result = await db.delete_multiple_accounts(account_ids)
+    
+    if result == 0:
+        raise HTTPException(status_code=404, detail="No accounts found or deleted")
+    
+    return {"message": f"Deleted {result} accounts successfully", "deleted_count": result}
+
+
 @api_router.get("/temp-email/test")
 async def test_temp_email():
     """Test temp email generation"""
