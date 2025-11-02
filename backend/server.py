@@ -66,6 +66,8 @@ class GarenaAccount(BaseModel):
 class CreateAccountRequest(BaseModel):
     quantity: int = Field(ge=1, le=100)
     email_provider: str = Field(default="mail.tm")  # Using mail.tm
+    username_prefix: Optional[str] = None  # Custom username prefix
+    username_separator: str = Field(default=".")  # Separator: . - _ * / +
 
 class CreationJob(BaseModel):
     model_config = ConfigDict(extra="ignore")
