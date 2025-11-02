@@ -461,22 +461,38 @@ const Dashboard = () => {
                   </div>
                   
                   {useCustomQuantity ? (
-                    <input
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={customQuantity}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (value === '' || (parseInt(value) >= 1 && parseInt(value) <= 100)) {
+                    <div>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={customQuantity}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allow empty or any number while typing
                           setCustomQuantity(value);
-                          setQuantity(value);
-                        }
-                      }}
-                      placeholder="Nhập số lượng (1-100)"
-                      disabled={creating}
-                      className={`w-full px-3 py-2 rounded-md ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100 placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'} border focus:ring-2 focus:ring-cyan-500 focus:border-transparent`}
-                    />
+                          // Only update quantity if valid
+                          if (value !== '' && parseInt(value) >= 1 && parseInt(value) <= 100) {
+                            setQuantity(value);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          // On blur, ensure value is valid or reset
+                          const value = e.target.value;
+                          const num = parseInt(value);
+                          if (value === '' || isNaN(num) || num < 1 || num > 100) {
+                            setCustomQuantity('5');
+                            setQuantity('5');
+                          }
+                        }}
+                        placeholder="Nhập số lượng (1-100)"
+                        disabled={creating}
+                        className={`w-full px-3 py-2 rounded-md ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100 placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'} border focus:ring-2 focus:ring-cyan-500 focus:border-transparent`}
+                      />
+                      {customQuantity && (parseInt(customQuantity) < 1 || parseInt(customQuantity) > 100) && (
+                        <p className="text-xs text-red-500 mt-1">Vui lòng nhập số từ 1 đến 100</p>
+                      )}
+                    </div>
                   ) : (
                     <Select value={quantity} onValueChange={(val) => {setQuantity(val); setCustomQuantity('');}} disabled={creating}>
                       <SelectTrigger className={`w-full ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700 text-gray-100' : 'bg-white border-gray-300 text-gray-900'}`} data-testid="quantity-select">
