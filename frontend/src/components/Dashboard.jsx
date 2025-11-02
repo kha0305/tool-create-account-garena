@@ -1024,27 +1024,51 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="flex justify-between items-center pt-4 border-t border-gray-700">
-            <Button
-              onClick={() => handleCheckInbox(selectedAccount)}
-              variant="outline"
-              size="sm"
-              className={theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}
-              disabled={checkingInbox}
-              title="Click để kiểm tra email mới. Email có thể mất 2-5 phút để đến."
-            >
-              {checkingInbox ? (
-                <>
-                  <Loader2 className="mr-2 animate-spin" size={16} />
-                  Đang tải...
-                </>
-              ) : (
-                <>
-                  <Inbox className="mr-2" size={16} />
-                  Làm mới Inbox
-                </>
-              )}
-            </Button>
+          <div className="flex justify-between items-center pt-4 border-t border-gray-700 gap-3">
+            <div className="flex gap-2">
+              <Button
+                onClick={() => handleCheckInbox(selectedAccount)}
+                variant="outline"
+                size="sm"
+                className={theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}
+                disabled={checkingInbox || creatingReplacement}
+                title="Click để kiểm tra email mới. Email có thể mất 2-5 phút để đến."
+              >
+                {checkingInbox ? (
+                  <>
+                    <Loader2 className="mr-2 animate-spin" size={16} />
+                    Đang tải...
+                  </>
+                ) : (
+                  <>
+                    <Inbox className="mr-2" size={16} />
+                    Làm mới Inbox
+                  </>
+                )}
+              </Button>
+              
+              <Button
+                onClick={handleCreateReplacementEmail}
+                variant="default"
+                size="sm"
+                className={`${theme === 'dark' ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-cyan-500 hover:bg-cyan-600'} text-white`}
+                disabled={checkingInbox || creatingReplacement}
+                title="Tạo 1 tài khoản mail mới nếu không nhận được email"
+              >
+                {creatingReplacement ? (
+                  <>
+                    <Loader2 className="mr-2 animate-spin" size={16} />
+                    Đang tạo...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="mr-2" size={16} />
+                    Tạo Mail Thay Thế
+                  </>
+                )}
+              </Button>
+            </div>
+            
             <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
               {inboxMessages.length > 0 ? `${inboxMessages.length} email` : 'Chưa có email'}
             </span>
