@@ -678,3 +678,39 @@ agent_communication:
     - ✅ Backend: Running stable
     - ✅ All features working perfectly"
 
+  - agent: "user"
+    message: "thêm con mắt từng hoặc tất cả chỗ mật khẩu có thể hiện hoặc ẩn mặc định là ẩn"
+  - agent: "main"
+    message: "✅ ĐÃ HOÀN THÀNH TÍNH NĂNG HIỆN/ẨN MẬT KHẨU:
+    
+    **TÍNH NĂNG TOGGLE PASSWORD VISIBILITY:**
+    
+    **1. Global Toggle (Hiện/Ẩn Tất Cả):**
+    - Có sẵn button con mắt trong header cột Mật khẩu
+    - Click để hiện/ẩn tất cả mật khẩu cùng lúc
+    - Icon thay đổi: Eye (ẩn) ↔ EyeOff (hiện)
+    - Tooltip: 'Hiện mật khẩu' / 'Ẩn mật khẩu'
+    
+    **2. Individual Toggle (Hiện/Ẩn Từng Mật Khẩu):**
+    - Thêm button con mắt bên cạnh mỗi mật khẩu
+    - Click để hiện/ẩn từng mật khẩu riêng lẻ
+    - Icon thay đổi: Eye (ẩn) ↔ EyeOff (hiện)
+    - Logic: Nếu global toggle BẬT hoặc individual toggle BẬT → hiện mật khẩu
+    
+    **3. Default State:**
+    - ✅ Mặc định: TẤT CẢ MẬT KHẨU ẨN (••••••••)
+    - State: showPasswords = false (default)
+    - State: visiblePasswords = {} (empty object)
+    
+    **CHANGES:**
+    - Added showPasswords state (global toggle)
+    - Updated password cell: Individual eye icon + logic để check cả global và individual state
+    - Password display logic: showPasswords || visiblePasswords[account.id]
+    - Icon display: Hiển thị Eye/EyeOff dựa trên state
+    - Size icon: 14px để match với copy buttons
+    
+    **SERVICES STATUS:**
+    - ✅ Frontend: Compiled successfully và running
+    - ✅ Backend: Running stable
+    - ✅ Feature ready to test"
+
