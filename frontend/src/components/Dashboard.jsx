@@ -469,6 +469,44 @@ const Dashboard = () => {
                   </Select>
                 </div>
               </div>
+              
+              {/* Custom Username Section */}
+              <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800/30 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Tùy chỉnh Username (tùy chọn)
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
+                    <input
+                      type="text"
+                      value={usernamePrefix}
+                      onChange={(e) => setUsernamePrefix(e.target.value)}
+                      placeholder="Ví dụ: username1a"
+                      disabled={creating}
+                      className={`w-full px-3 py-2 rounded-md ${theme === 'dark' ? 'bg-gray-800 border-gray-700 text-gray-100 placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'} border focus:ring-2 focus:ring-cyan-500 focus:border-transparent`}
+                    />
+                    <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Để trống để tạo username ngẫu nhiên. Ví dụ: "user1" sẽ tạo user1.1, user1.2...
+                    </p>
+                  </div>
+                  <div>
+                    <Select value={usernameSeparator} onValueChange={setUsernameSeparator} disabled={creating}>
+                      <SelectTrigger className={`w-full ${theme === 'dark' ? 'bg-gray-800 border-gray-700 text-gray-100' : 'bg-white border-gray-300 text-gray-900'}`}>
+                        <SelectValue placeholder="Ký tự phân cách" />
+                      </SelectTrigger>
+                      <SelectContent className={theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}>
+                        <SelectItem value="." className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>Dấu chấm (.)</SelectItem>
+                        <SelectItem value="-" className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>Dấu gạch ngang (-)</SelectItem>
+                        <SelectItem value="_" className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>Dấu gạch dưới (_)</SelectItem>
+                        <SelectItem value="*" className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>Dấu sao (*)</SelectItem>
+                        <SelectItem value="/" className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>Dấu gạch chéo (/)</SelectItem>
+                        <SelectItem value="+" className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}>Dấu cộng (+)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              
               <Button
                 onClick={handleCreateAccounts}
                 disabled={creating}
