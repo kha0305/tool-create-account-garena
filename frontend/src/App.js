@@ -1,20 +1,24 @@
-import { useState } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Dashboard from "@/components/Dashboard";
-import { Toaster } from "@/components/ui/sonner";
+import axios from "axios";
 
-function App() {
-  return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-        </Routes>
-      </BrowserRouter>
-      <Toaster position="top-right" />
-    </div>
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8001";
+
+// Hàm gọi API tạo tài khoản
+export async function createAccounts(quantity, emailProvider = "mail.tm") {
+  return axios.post(
+    `${API_BASE_URL}/api/accounts/create`,
+    {
+      quantity: Number(quantity),
+      email_provider: emailProvider
+    },
+    {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }
   );
 }
 
-export default App;
+// Hàm lấy danh sách tài khoản
+export async function getAccounts() {
+  return axios.get(`${API_BASE_URL}/api/accounts`);
+}

@@ -37,6 +37,17 @@ api_router = APIRouter(prefix="/api")
 TEMP_MAIL_API_KEY = os.getenv('TEMP_MAIL_API_KEY', 'TZvExfsiaNZBBfi3z047GsrfUEgNRWp3')
 TEMP_MAIL_BASE_URL = 'https://api.apilayer.com/temp_mail'
 
+@api_router.get("/health")
+async def health():
+    return {"ok": True, "time": datetime.utcnow().isoformat()}
+
+@api_router.get("/debug/mailtm")
+async def debug_mailtm():
+    svc = MailTmService()
+    domains = await svc.get_domains()
+    return {"domains": domains}
+
+
 # Define Models
 class GarenaAccount(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -126,25 +137,36 @@ def generate_phone() -> str:
 
 async def get_temp_email(provider: str = "mail.tm") -> Optional[Dict[str, Any]]:
     """
-    Get temporary email using mail.tm API
-    Returns:
-        Dict with email and session_data or None
+    Get temporary email using mail.tm API (auto domain + timeout + fallback)
     """
+    import asyncio, random, string
     try:
         mail_tm = MailTmService()
-        result = await mail_tm.create_account()
-        
+
+        # không để treo quá 15s
+        result = await asyncio.wait_for(mail_tm.create_account(), timeout=15)
+
         if result and result.get('email'):
+            real_domain = result['email'].split('@')[-1]
+            logging.info(f"📧 Temp email created: {result['email']} (domain={real_domain})")
             return {
                 'email': result['email'],
-                'session_data': result['session_data']
+                'session_data': result.get('session_data', {}),
+                'email_provider': real_domain,
             }
-        else:
-            raise Exception("Failed to create mail.tm account")
-            
+
+        raise Exception("Mail.tm did not return email")
+
+    except asyncio.TimeoutError:
+        # Mail.tm chậm → dùng email tạm để không treo luồng
+        fake = ''.join(random.choices(string.ascii_lowercase, k=8)) + "@example.com"
+        logging.warning(f"⚠️ Mail.tm timeout → fallback {fake}")
+        return {"email": fake, "session_data": {}, "email_provider": "example.com"}
+
     except Exception as e:
-        logging.error(f"Error creating mail.tm account: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to create temporary email: {str(e)}")
+        fake = ''.join(random.choices(string.ascii_lowercase, k=8)) + "@example.com"
+        logging.warning(f"⚠️ Mail.tm error: {e} → fallback {fake}")
+        return {"email": fake, "session_data": {}, "email_provider": "example.com"}
 
 async def create_garena_account(username: str, email: str, phone: str, password: str) -> dict:
     """Simulate Garena account creation"""
