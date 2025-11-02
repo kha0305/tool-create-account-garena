@@ -312,6 +312,53 @@ const Dashboard = () => {
     });
   };
 
+
+  // Toggle account selection
+  const handleToggleAccount = (accountId) => {
+    setSelectedAccounts(prev => {
+      if (prev.includes(accountId)) {
+        return prev.filter(id => id !== accountId);
+      } else {
+        return [...prev, accountId];
+      }
+    });
+  };
+
+  // Toggle select all accounts
+  const handleToggleSelectAll = () => {
+    if (selectedAccounts.length === accounts.length) {
+      setSelectedAccounts([]);
+    } else {
+      setSelectedAccounts(accounts.map(acc => acc.id));
+    }
+  };
+
+  // Delete selected accounts
+  const handleDeleteSelected = async () => {
+    if (selectedAccounts.length === 0) {
+      toast.error('Vui lòng chọn tài khoản để xóa');
+      return;
+    }
+
+    if (!window.confirm(`Bạn có chắc muốn xóa ${selectedAccounts.length} tài khoản?`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await axios.post(`${API}/accounts/delete-multiple`, selectedAccounts);
+      toast.success(`Đã xóa ${selectedAccounts.length} tài khoản thành công`);
+      setSelectedAccounts([]);
+      fetchAccounts();
+    } catch (error) {
+      console.error('Error deleting accounts:', error);
+      toast.error('Lỗi khi xóa tài khoản');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+
   // Load accounts on mount
   useEffect(() => {
     fetchAccounts();
