@@ -620,6 +620,14 @@ const Dashboard = () => {
                 <table className={`cyber-table ${theme}`} data-testid="accounts-table">
                   <thead>
                     <tr>
+                      <th className="w-12">
+                        <input
+                          type="checkbox"
+                          checked={accounts.length > 0 && selectedAccounts.length === accounts.length}
+                          onChange={handleToggleSelectAll}
+                          className="w-4 h-4 rounded cursor-pointer"
+                        />
+                      </th>
                       <th>Username</th>
                       <th>Email</th>
                       <th>Mật khẩu</th>
@@ -632,6 +640,14 @@ const Dashboard = () => {
                   <tbody>
                     {accounts.map((account, index) => (
                       <tr key={account.id} data-testid={`account-row-${index}`}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedAccounts.includes(account.id)}
+                            onChange={() => handleToggleAccount(account.id)}
+                            className="w-4 h-4 rounded cursor-pointer"
+                          />
+                        </td>
                         <td className={`font-semibold ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-700'}`} data-testid={`account-username-${index}`}>
                           <div className="flex items-center gap-2">
                             <span>{account.username}</span>
