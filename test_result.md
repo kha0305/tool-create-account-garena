@@ -385,6 +385,30 @@ frontend:
         agent: "main"
         comment: "Added individual copy buttons next to username, email, and password fields. Shows checkmark icon when copied successfully for 2 seconds."
 
+  - task: "Filter email @example.com trong inbox (Frontend)"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/Dashboard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Added client-side filtering in handleCheckInbox() to filter out emails from @example.com. Checks both object sender and string sender formats. Double-check filter after backend filter."
+
+  - task: "Button Tạo Mail Thay Thế trong Inbox Dialog"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/Dashboard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Added 'Tạo Mail Thay Thế' button in Inbox Dialog next to 'Làm mới Inbox' button. Creates 1 new mail.tm account when user doesn't receive email. Features: Cyan button with Zap icon, loading state with spinner, job polling, auto refresh accounts list, closes dialog after completion. Error handling for rate limiting and network errors."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
