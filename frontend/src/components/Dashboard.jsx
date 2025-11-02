@@ -669,7 +669,18 @@ const Dashboard = () => {
                       </th>
                       <th>Username</th>
                       <th>Email</th>
-                      <th>Mật khẩu</th>
+                      <th>
+                        <div className="flex items-center gap-2 justify-center">
+                          <span>Mật khẩu</span>
+                          <button
+                            onClick={() => setShowPasswords(!showPasswords)}
+                            className={`p-1 rounded hover:bg-gray-700/50 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-800'}`}
+                            title={showPasswords ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                          >
+                            {showPasswords ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                      </th>
                       <th>Provider</th>
                       <th>Trạng thái</th>
                       <th>Ngày tạo</th>
