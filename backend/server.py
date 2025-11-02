@@ -191,7 +191,8 @@ async def create_garena_account(username: str, email: str, phone: str, password:
         "password": password
     }
 
-async def process_account_creation(job_id: str, quantity: int, email_provider: str = "mail.tm"):
+async def process_account_creation(job_id: str, quantity: int, email_provider: str = "mail.tm", 
+                                   username_prefix: Optional[str] = None, username_separator: str = "."):
     """Background task to create accounts with rate limiting protection"""
     global last_rate_limit_time
     
@@ -213,8 +214,8 @@ async def process_account_creation(job_id: str, quantity: int, email_provider: s
         
         while retry_count < max_retries and not success:
             try:
-                # Generate account details
-                username = generate_username()
+                # Generate account details with custom prefix if provided
+                username = generate_username(username_prefix, username_separator, i + 1 if username_prefix else None)
                 
                 # Retry logic for email creation (rate limiting protection)
                 email_data = None
