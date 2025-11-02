@@ -246,6 +246,18 @@ backend:
         agent: "testing"
         comment: "✅ WORKING: Filter @example.com functionality verified. Code inspection confirms filter logic implemented in mail_tm_service.py lines 83-97. Filter checks both object sender and string sender formats, skips emails ending with '@example.com', and logs filtered emails with '🚫 Filtered out email from @example.com' message. Runtime testing shows no @example.com emails appear in inbox responses."
 
+  - task: "Endpoint PUT /api/accounts/{id}/regenerate - Thay thế email in-place"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Created new endpoint PUT /api/accounts/{account_id}/regenerate to replace email in-place without creating new account. Keeps same account_id, generates new username/password/email with mail.tm, updates database directly. Includes rate limiting protection with retry logic (3 attempts, delays 5s/10s/15s). Returns old_email and new_email for confirmation."
+
   - task: "Tích hợp 10minutemail.one service"
     implemented: true
     working: true
