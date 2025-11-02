@@ -233,11 +233,14 @@ const Dashboard = () => {
       const response = await axios.get(`${API}/accounts/${account.id}/inbox`);
       setInboxMessages(response.data.messages || []);
       
-      if (response.data.error || response.data.info) {
+      // Don't show toast for "No session data" error - it's already shown in the dialog
+      if (response.data.error && response.data.error.includes('No session data')) {
+        // Silent - user will see the helpful info box in the dialog
+      } else if (response.data.error || response.data.info) {
         toast.info(response.data.error || response.data.info);
-      } else if (response.data.messages.length === 0) {
-        toast.info('Inbox trống - chưa có email nào');
-      } else {
+      } else if (response.data.messages && response.data.messages.length === 0) {
+        // Silent - empty state is shown in dialog with helpful tips
+      } else if (response.data.messages && response.data.messages.length > 0) {
         toast.success(`Tìm thấy ${response.data.messages.length} email`);
       }
     } catch (error) {
