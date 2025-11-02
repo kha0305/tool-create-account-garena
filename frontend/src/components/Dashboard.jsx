@@ -122,10 +122,18 @@ const Dashboard = () => {
 
     setCreating(true);
     try {
-      const response = await axios.post(`${API}/accounts/create`, {
+      const requestData = {
         quantity: qty,
         email_provider: emailProvider
-      });
+      };
+      
+      // Add username customization if prefix is provided
+      if (usernamePrefix && usernamePrefix.trim()) {
+        requestData.username_prefix = usernamePrefix.trim();
+        requestData.username_separator = usernameSeparator;
+      }
+      
+      const response = await axios.post(`${API}/accounts/create`, requestData);
 
       const estimatedTime = qty * 10; // Updated estimate: 10 seconds per account
       const minutes = Math.ceil(estimatedTime / 60);
