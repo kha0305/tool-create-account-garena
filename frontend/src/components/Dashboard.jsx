@@ -1015,7 +1015,7 @@ const Dashboard = () => {
               <div className={`overflow-y-auto max-h-96 p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
                 {emailViewMode === 'text' ? (
                   <div 
-                    className={`whitespace-pre-wrap font-mono text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`whitespace-pre-wrap font-mono text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
                     style={{ 
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word'
@@ -1026,12 +1026,12 @@ const Dashboard = () => {
                         dangerouslySetInnerHTML={{
                           __html: selectedEmail.text.replace(
                             /(https?:\/\/[^\s]+)/g, 
-                            '<a href="$1" target="_blank" rel="noopener noreferrer" style="text-decoration: underline; color: inherit;">$1</a>'
+                            '<a href="$1" target="_blank" rel="noopener noreferrer" style="text-decoration: underline; color: #3b82f6; font-weight: 500;">$1</a>'
                           )
                         }}
                       />
                     ) : (
-                      <p className={theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}>Không có nội dung text</p>
+                      <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>Không có nội dung text</p>
                     )}
                   </div>
                 ) : (
@@ -1044,7 +1044,7 @@ const Dashboard = () => {
                         sandbox="allow-same-origin"
                       />
                     ) : (
-                      <p className={theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}>Không có nội dung HTML</p>
+                      <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>Không có nội dung HTML</p>
                     )}
                   </div>
                 )}
