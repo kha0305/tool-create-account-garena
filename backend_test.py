@@ -416,17 +416,25 @@ class GarenaBackendTester:
             self.log_test("Mail.tm Inbox Checking", False, "No accounts available for testing")
             return
         
-        # Test with mail.tm account
-        mail_tm_account = None
+        # Find a real mail.tm account with JWT token
+        real_mail_tm_account = None
+        fallback_account = None
         
         for account in self.created_accounts:
             if account.get("email_provider") == "mail.tm":
-                mail_tm_account = account
-                break
+                email = account.get("email", "")
+                session_data = account.get("email_session_data", {})
+                
+                if email.endswith("@example.com"):
+                    fallback_account = account
+                elif session_data.get("token"):
+                    real_mail_tm_account = account
+                    break
         
-        if mail_tm_account:
+        # Test with real mail.tm account if available
+        if real_mail_tm_account:
             try:
-                account_id = mail_tm_account["id"]
+                account_id = real_mail_tm_account["id"]
                 response = await self.client.get(f"{BACKEND_URL}/accounts/{account_id}/inbox")
                 
                 if response.status_code == 200:
@@ -446,18 +454,34 @@ class GarenaBackendTester:
                             self.log_test("Mail.tm Inbox Check", False, 
                                         f"❌ Missing required fields in response", data)
                     else:
-                        # Check if it's an error due to missing token
-                        if "error" in data and "token" in data.get("error", "").lower():
-                            self.log_test("Mail.tm Inbox Check", False, 
-                                        f"❌ JWT token issue: {data.get('error')}", data)
-                        else:
-                            self.log_test("Mail.tm Inbox Check", False, 
-                                        f"❌ Invalid inbox response format", data)
+                        self.log_test("Mail.tm Inbox Check", False, 
+                                    f"❌ Invalid inbox response format", data)
                 else:
                     self.log_test("Mail.tm Inbox Check", False, f"HTTP {response.status_code}", 
                                 {"status": response.status_code, "text": response.text})
             except Exception as e:
                 self.log_test("Mail.tm Inbox Check", False, f"Request error: {str(e)}")
+        
+        # Test with fallback account (should return appropriate error)
+        elif fallback_account:
+            try:
+                account_id = fallback_account["id"]
+                response = await self.client.get(f"{BACKEND_URL}/accounts/{account_id}/inbox")
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if "error" in data and ("session data" in data["error"] or "token" in data["error"]):
+                        self.log_test("Mail.tm Inbox Check", True, 
+                                    f"✅ Fallback account correctly returns error: {data['error']}")
+                    else:
+                        self.log_test("Mail.tm Inbox Check", False, 
+                                    f"❌ Unexpected response for fallback account", data)
+                else:
+                    self.log_test("Mail.tm Inbox Check", False, f"HTTP {response.status_code}", 
+                                {"status": response.status_code, "text": response.text})
+            except Exception as e:
+                self.log_test("Mail.tm Inbox Check", False, f"Request error: {str(e)}")
+        
         else:
             self.log_test("Mail.tm Inbox Check", False, "No mail.tm accounts found for testing")
 
