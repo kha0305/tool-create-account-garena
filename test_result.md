@@ -577,7 +577,7 @@ agent_communication:
     - JWT token authentication functioning properly
 
     **PRODUCTION ENVIRONMENT STATUS:**
-    - Backend API: RUNNING (https://f93fbc76-2f4b-4be0-8f36-376b317fbb50.preview.emergentagent.com/api)
+    - Backend API: RUNNING (https://login-register-issue.preview.emergentagent.com/api)
     - Database: Multiple accounts stored successfully with complete session data
     - Mail.tm Integration: Fully operational with 2200freefonts.com domain emails
 
