@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Loader2, Trash2, Download, Zap, Database, Sun, Moon, ExternalLink, CheckCircle2, Mail, Inbox, Copy, Check } from 'lucide-react';
+import { Loader2, Trash2, Download, Zap, Database, Sun, Moon, ExternalLink, CheckCircle2, Mail, Inbox, Copy, Check, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
