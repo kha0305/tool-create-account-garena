@@ -898,10 +898,21 @@ const Dashboard = () => {
                 <span className={`ml-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Đang kiểm tra inbox...</span>
               </div>
             ) : inboxMessages.length === 0 ? (
-              <div className={`text-center py-12 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+              <div className={`text-center py-8 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                 <Mail size={48} className="mx-auto mb-4 opacity-50" />
-                <p>Inbox trống - chưa có email nào</p>
-                <p className="text-sm mt-2">Email verification có thể mất vài phút để đến</p>
+                <p className="text-base font-medium mb-2">Inbox trống - chưa có email nào</p>
+                
+                <div className={`mt-4 p-4 rounded-lg text-left ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700/30' : 'bg-blue-50 border border-blue-200'}`}>
+                  <p className={`text-sm mb-2 font-medium ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>
+                    💡 Lưu ý về nhận email:
+                  </p>
+                  <ul className="text-sm space-y-1.5 list-disc list-inside">
+                    <li>Email từ Garena có thể mất <strong>2-5 phút</strong> để đến</li>
+                    <li>Một số email service có thể <strong>chặn temporary email</strong></li>
+                    <li>Click "Làm mới" để kiểm tra email mới</li>
+                    <li>Nếu không nhận được sau 5 phút, hãy tạo tài khoản mới</li>
+                  </ul>
+                </div>
               </div>
             ) : (
               <div className="space-y-3">
