@@ -43,9 +43,9 @@ if %errorlevel% equ 0 (
 )
 echo.
 
-echo Step 5: Building Electron app (without signing)...
+echo Step 5: Building Electron app for Windows only (without signing)...
 set USE_HARD_LINKS=false
-call yarn electron-builder --win --config.win.sign=false
+call yarn electron-builder --win
 if %errorlevel% equ 0 (
     echo.
     echo ==================================================
