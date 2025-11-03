@@ -612,7 +612,7 @@ async def get_email_providers():
     }
 
 @api_router.get("/accounts/{account_id}/inbox")
-async def check_account_inbox(account_id: str):
+async def check_account_inbox(account_id: int):
     """Check inbox for account's temporary email"""
     account = await db.find_account(account_id)
     
