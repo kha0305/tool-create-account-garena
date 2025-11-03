@@ -10,7 +10,7 @@ import json
 import re
 from typing import Dict
 
-BACKEND_URL = "https://mail-account-switch.preview.emergentagent.com/api"
+BACKEND_URL = "https://account-factory-2.preview.emergentagent.com/api"
 TIMEOUT = 30.0
 
 class NewFeaturesTester:
