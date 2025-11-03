@@ -176,7 +176,7 @@ class MySQLDatabase:
             logger.error(f"❌ Error fetching accounts: {e}")
             return []
 
-    async def update_account(self, account_id: str, update_data: Dict[str, Any]) -> bool:
+    async def update_account(self, account_id: int, update_data: Dict[str, Any]) -> bool:
         """Update account"""
         try:
             if not update_data:
@@ -205,7 +205,7 @@ class MySQLDatabase:
             logger.error(f"❌ Error updating account: {e}")
             return False
 
-    async def delete_account(self, account_id: str) -> int:
+    async def delete_account(self, account_id: int) -> int:
         """Delete account by ID"""
         try:
             async with self.pool.acquire() as conn:
