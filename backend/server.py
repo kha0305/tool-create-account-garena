@@ -450,7 +450,7 @@ async def delete_all_accounts():
 
 
 @api_router.post("/accounts/delete-multiple")
-async def delete_multiple_accounts(account_ids: List[str]):
+async def delete_multiple_accounts(account_ids: List[int]):
     """Delete multiple accounts by IDs"""
     if not account_ids:
         raise HTTPException(status_code=400, detail="No account IDs provided")
