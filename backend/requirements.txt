@@ -71,3 +71,5 @@ uvicorn==0.25.0
 watchfiles==1.1.1
 beautifulsoup4==4.12.3
 openpyxl
+pyinstaller==6.11.1
+
