@@ -251,8 +251,8 @@ class MySQLDatabase:
 
 
     # ========== CREATION JOBS ==========
-    async def insert_job(self, job_data: Dict[str, Any]) -> bool:
-        """Insert a new job"""
+    async def insert_job(self, job_data: Dict[str, Any]) -> Optional[int]:
+        """Insert a new job and return the auto-generated ID"""
         try:
             async with self.pool.acquire() as conn:
                 async with conn.cursor() as cursor:
@@ -268,12 +268,12 @@ class MySQLDatabase:
                     else:
                         accounts = json.dumps([])
                     
+                    # Don't include job_id in INSERT - let MySQL auto-generate it
                     await cursor.execute("""
                         INSERT INTO creation_jobs 
-                        (job_id, total, completed, failed, status, accounts, created_at)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        (total, completed, failed, status, accounts, created_at)
+                        VALUES (%s, %s, %s, %s, %s, %s)
                     """, (
-                        job_data.get('job_id'),
                         job_data.get('total'),
                         job_data.get('completed', 0),
                         job_data.get('failed', 0),
@@ -282,12 +282,13 @@ class MySQLDatabase:
                         created_at
                     ))
                     await conn.commit()
-                    return True
+                    # Return the auto-generated ID
+                    return cursor.lastrowid
         except Exception as e:
             logger.error(f"❌ Error inserting job: {e}")
-            return False
+            return None
 
-    async def find_job(self, job_id: str) -> Optional[Dict[str, Any]]:
+    async def find_job(self, job_id: int) -> Optional[Dict[str, Any]]:
         """Find job by ID"""
         try:
             async with self.pool.acquire() as conn:
