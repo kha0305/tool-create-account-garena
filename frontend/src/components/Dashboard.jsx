@@ -850,6 +850,9 @@ const Dashboard = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Settings Dialog */}
+      <Settings open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 };
