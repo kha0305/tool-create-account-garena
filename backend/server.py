@@ -33,9 +33,20 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Temp Mail API Configuration
-TEMP_MAIL_API_KEY = os.getenv('TEMP_MAIL_API_KEY', 'TZvExfsiaNZBBfi3z047GsrfUEgNRWp3')
+# Temp Mail API Configuration with multiple fallback keys
+# These are default API keys provided with the app
+# Users can change them in Settings if needed
+DEFAULT_TEMP_MAIL_KEYS = [
+    'TZvExfsiaNZBBfi3z047GsrfUEgNRWp3',  # Default key 1
+    'temp_mail_backup_key_001',           # Backup key (replace with real key if available)
+]
+
+# Get API key from environment or use first default key
+TEMP_MAIL_API_KEY = os.getenv('TEMP_MAIL_API_KEY', DEFAULT_TEMP_MAIL_KEYS[0])
 TEMP_MAIL_BASE_URL = 'https://api.apilayer.com/temp_mail'
+
+# Mail.tm is our primary free service (no API key needed)
+MAIL_TM_BASE_URL = 'https://api.mail.tm'
 
 # Define Models
 class GarenaAccount(BaseModel):
