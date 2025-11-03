@@ -498,8 +498,7 @@ async def regenerate_account_email(account_id: str):
     """Regenerate email for an existing account - replaces email in-place"""
     try:
         # Get existing account
-        accounts = await db.get_all_accounts()
-        account = next((acc for acc in accounts if acc.get("id") == account_id), None)
+        account = await db.find_account(account_id)
         
         if not account:
             raise HTTPException(status_code=404, detail="Account not found")
