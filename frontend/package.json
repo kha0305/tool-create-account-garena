@@ -132,14 +132,6 @@
       "signAndEditExecutable": false,
       "verifyUpdateCodeSignature": false
     },
-    "mac": {
-      "target": "dmg",
-      "identity": null
-    },
-    "linux": {
-      "target": ["AppImage", "deb"],
-      "category": "Utility"
-    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
