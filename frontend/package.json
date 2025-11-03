@@ -1,6 +1,10 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "garena-account-creator",
+  "version": "1.0.0",
+  "description": "Công cụ tạo tài khoản Garena hàng loạt với email ảo",
+  "author": "Your Name",
+  "main": "public/electron.js",
+  "homepage": "./",
   "private": true,
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -58,7 +62,14 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
-    "test": "craco test"
+    "test": "craco test",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-build": "yarn build && electron-builder",
+    "electron-build-win": "yarn build && electron-builder --win",
+    "electron-build-mac": "yarn build && electron-builder --mac",
+    "electron-build-linux": "yarn build && electron-builder --linux",
+    "dist": "yarn build && electron-builder --win --mac --linux"
   },
   "browserslist": {
     "production": [
@@ -90,6 +101,52 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "wait-on": "^9.0.1"
+  },
+  "build": {
+    "appId": "com.garena.accountcreator",
+    "productName": "Garena Account Creator",
+    "files": [
+      "build/**/*",
+      "public/electron.js",
+      "public/preload.js",
+      "public/icon.png",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend/dist",
+        "to": "backend",
+        "filter": ["**/*"]
+      }
+    ],
+    "directories": {
+      "buildResources": "public"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/icon.png",
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "public/icon.png",
+      "category": "Utility"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
