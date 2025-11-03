@@ -134,7 +134,7 @@ class MySQLDatabase:
             logger.error(f"❌ Error inserting account: {e}")
             return None
     
-    async def find_account(self, account_id: str) -> Optional[Dict[str, Any]]:
+    async def find_account(self, account_id: int) -> Optional[Dict[str, Any]]:
         """Find account by ID"""
         try:
             async with self.pool.acquire() as conn:
