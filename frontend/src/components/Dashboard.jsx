@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Loader2, Trash2, Download, Zap, Database, Sun, Moon, ExternalLink, CheckCircle2, Mail, Inbox, Copy, Check, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Trash2, Download, Zap, Database, Sun, Moon, ExternalLink, CheckCircle2, Mail, Inbox, Copy, Check, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
@@ -20,7 +20,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ total: 0, created: 0 });
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'dark';
+    return localStorage.getItem('theme') || 'light';
   });
   const [verifyDialog, setVerifyDialog] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -33,6 +33,10 @@ const Dashboard = () => {
   const [loadingEmailContent, setLoadingEmailContent] = useState(false);
   const [emailViewMode, setEmailViewMode] = useState('text'); // 'text' or 'html'
   const [exportFormat, setExportFormat] = useState('txt'); // 'txt', 'csv', or 'xlsx'
+  
+  // Sort state
+  const [sortBy, setSortBy] = useState('id'); // 'id' or 'username'
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
   
   // Custom username states
   const [usernamePrefix, setUsernamePrefix] = useState('');
