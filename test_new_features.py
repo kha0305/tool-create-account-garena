@@ -10,7 +10,7 @@ import json
 import re
 from typing import Dict
 
-BACKEND_URL = "https://acctool-garena.preview.emergentagent.com/api"
+BACKEND_URL = "https://toolfix-garena.preview.emergentagent.com/api"
 TIMEOUT = 30.0
 
 class NewFeaturesTester:
