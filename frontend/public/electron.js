@@ -25,7 +25,13 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, 'icon.png'),
-    title: 'Garena Account Creator'
+    title: 'Garena Account Creator',
+    show: false // Don't show until ready
+  });
+
+  // Show window when ready to prevent white flash
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
   });
 
   // Load the app
@@ -33,8 +39,40 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:3000');
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
+    // Production mode - load from build directory
+    // When packaged, structure is: app.asar/build/index.html and app.asar/public/electron.js
+    const indexPath = path.join(__dirname, '../build/index.html');
+    console.log('Loading from:', indexPath);
+    console.log('__dirname:', __dirname);
+    console.log('File exists:', fs.existsSync(indexPath));
+    
+    // Try alternative path if first doesn't work
+    if (!fs.existsSync(indexPath)) {
+      const altPath = path.join(app.getAppPath(), 'build', 'index.html');
+      console.log('Trying alternative path:', altPath);
+      console.log('Alt path exists:', fs.existsSync(altPath));
+      mainWindow.loadFile(altPath).catch(err => {
+        console.error('Failed to load from alt path:', err);
+      });
+    } else {
+      mainWindow.loadFile(indexPath).catch(err => {
+        console.error('Failed to load index.html:', err);
+      });
+    }
+    
+    // Open DevTools to debug
+    mainWindow.webContents.openDevTools();
   }
+
+  // Log any errors
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('Failed to load:', errorCode, errorDescription);
+  });
+
+  // Log when page is loaded
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Page loaded successfully');
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
