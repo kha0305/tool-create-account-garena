@@ -14,8 +14,11 @@ import { toast } from 'sonner';
 import { Settings as SettingsIcon } from 'lucide-react';
 
 const Settings = ({ open, onOpenChange }) => {
+  // Default API key provided with the app
+  const DEFAULT_API_KEY = 'TZvExfsiaNZBBfi3z047GsrfUEgNRWp3';
+  
   const [mongoUrl, setMongoUrl] = useState('');
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = useState(DEFAULT_API_KEY);
   const [dbName, setDbName] = useState('garena_creator_db');
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +33,8 @@ const Settings = ({ open, onOpenChange }) => {
       if (window.electron) {
         const settings = await window.electron.getSettings();
         setMongoUrl(settings.mongoUrl || '');
-        setApiKey(settings.apiKey || '');
+        // Use saved API key if exists, otherwise use default
+        setApiKey(settings.apiKey || DEFAULT_API_KEY);
         setDbName(settings.dbName || 'garena_creator_db');
       }
     } catch (error) {
