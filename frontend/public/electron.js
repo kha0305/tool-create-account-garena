@@ -48,6 +48,11 @@ function startBackendServer() {
       let command;
       let args;
 
+      // Get settings from store
+      const mongoUrl = store.get('mongoUrl', 'mongodb://localhost:27017');
+      const apiKey = store.get('apiKey', '');
+      const dbName = store.get('dbName', 'garena_creator_db');
+
       if (isDev) {
         // Development mode - use Python directly
         backendPath = path.join(__dirname, '../../backend');
@@ -73,7 +78,22 @@ function startBackendServer() {
       console.log('Starting backend:', command, args);
       console.log('Backend path:', backendPath);
 
-      const options = isDev ? { cwd: backendPath, shell: true } : { shell: false };
+      // Set environment variables from settings
+      const env = {
+        ...process.env,
+        MONGO_URL: mongoUrl,
+        DB_NAME: dbName,
+        CORS_ORIGINS: '*'
+      };
+      
+      if (apiKey) {
+        env.TEMP_MAIL_API_KEY = apiKey;
+      }
+
+      const options = isDev 
+        ? { cwd: backendPath, shell: true, env } 
+        : { shell: false, env };
+      
       backendProcess = spawn(command, args, options);
 
       backendProcess.stdout.on('data', (data) => {
