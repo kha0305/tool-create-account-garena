@@ -3,18 +3,9 @@ const path = require('path');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const isDev = require('electron-is-dev');
+const Store = require('electron-store');
 
-// Initialize store as null, will be set after app is ready
-let store = null;
-
-// Function to initialize store
-async function initializeStore() {
-  if (!store) {
-    const Store = (await import('electron-store')).default;
-    store = new Store();
-  }
-  return store;
-}
+const store = new Store();
 
 let mainWindow;
 let backendProcess;
@@ -51,14 +42,11 @@ function createWindow() {
 }
 
 function startBackendServer() {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
       let backendPath;
       let command;
       let args;
-
-      // Initialize store if not already done
-      await initializeStore();
 
       // Get settings from store
       const mongoUrl = store.get('mongoUrl', 'mongodb://localhost:27017');
@@ -147,7 +135,6 @@ function stopBackendServer() {
 
 // IPC Handlers for settings
 ipcMain.handle('get-settings', async () => {
-  await initializeStore();
   return {
     mongoUrl: store.get('mongoUrl', ''),
     apiKey: store.get('apiKey', ''),
@@ -158,7 +145,6 @@ ipcMain.handle('get-settings', async () => {
 
 ipcMain.handle('save-settings', async (event, settings) => {
   try {
-    await initializeStore();
     if (settings.mongoUrl) store.set('mongoUrl', settings.mongoUrl);
     if (settings.apiKey) store.set('apiKey', settings.apiKey);
     if (settings.dbName) store.set('dbName', settings.dbName);
