@@ -309,7 +309,7 @@ class MySQLDatabase:
             logger.error(f"❌ Error finding job: {e}")
             return None
 
-    async def update_job(self, job_id: str, update_data: Dict[str, Any]) -> bool:
+    async def update_job(self, job_id: int, update_data: Dict[str, Any]) -> bool:
         """Update job fields"""
         try:
             if not update_data:
