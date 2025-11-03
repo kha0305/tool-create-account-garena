@@ -392,7 +392,7 @@ async def create_accounts(request: CreateAccountRequest, background_tasks: Backg
     }
 
 @api_router.get("/accounts/job/{job_id}")
-async def get_job_status(job_id: str):
+async def get_job_status(job_id: int):
     """Get job status and created accounts"""
     job = await db.find_job(job_id)
     
