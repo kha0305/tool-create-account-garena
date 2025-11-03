@@ -1,93 +1,80 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
-const isDev = require('electron-is-dev');
 const { spawn } = require('child_process');
 const fs = require('fs');
-
-let mainWindow;
-let tray;
-let backendProcess;
-let mongoProcess;
+const isDev = require('electron-is-dev');
 const Store = require('electron-store');
+
 const store = new Store();
 
-// Paths
-const RESOURCES_PATH = isDev 
-  ? path.join(__dirname, '../../')
-  : process.resourcesPath;
+let mainWindow;
+let backendProcess;
 
-const BACKEND_PATH = path.join(RESOURCES_PATH, 'backend', 'server.exe');
-const MONGO_PATH = path.join(RESOURCES_PATH, 'mongodb', 'bin', 'mongod.exe');
-const MONGO_DATA_PATH = path.join(app.getPath('userData'), 'mongodb-data');
+// Backend server configuration
+const BACKEND_PORT = 8001;
+const BACKEND_HOST = 'localhost';
 
-// Create MongoDB data directory
-if (!fs.existsSync(MONGO_DATA_PATH)) {
-  fs.mkdirSync(MONGO_DATA_PATH, { recursive: true });
-}
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.js')
+    },
+    icon: path.join(__dirname, 'icon.png'),
+    title: 'Garena Account Creator'
+  });
 
-function startMongoDB() {
-  return new Promise((resolve, reject) => {
-    console.log('Starting MongoDB...');
-    
-    if (isDev) {
-      // In dev mode, assume MongoDB is already running
-      console.log('Dev mode: Skipping MongoDB start');
-      resolve();
-      return;
-    }
+  // Load the app
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:3000');
+    mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
+  }
 
-    try {
-      mongoProcess = spawn(MONGO_PATH, [
-        '--dbpath', MONGO_DATA_PATH,
-        '--port', '27017',
-        '--bind_ip', '127.0.0.1'
-      ]);
-
-      mongoProcess.stdout.on('data', (data) => {
-        console.log(`MongoDB: ${data}`);
-        if (data.includes('waiting for connections')) {
-          console.log('MongoDB started successfully');
-          resolve();
-        }
-      });
-
-      mongoProcess.stderr.on('data', (data) => {
-        console.error(`MongoDB Error: ${data}`);
-      });
-
-      mongoProcess.on('error', (error) => {
-        console.error('Failed to start MongoDB:', error);
-        reject(error);
-      });
-
-      // Timeout fallback
-      setTimeout(() => resolve(), 5000);
-    } catch (error) {
-      console.error('Error starting MongoDB:', error);
-      reject(error);
-    }
+  mainWindow.on('closed', () => {
+    mainWindow = null;
   });
 }
 
-function startBackend() {
+function startBackendServer() {
   return new Promise((resolve, reject) => {
-    console.log('Starting Backend...');
-    
-    if (isDev) {
-      // In dev mode, assume backend is running
-      console.log('Dev mode: Using existing backend');
-      resolve();
-      return;
-    }
-
     try {
-      const env = Object.assign({}, process.env, {
-        MONGO_URL: 'mongodb://127.0.0.1:27017',
-        DB_NAME: 'garena_accounts',
-        PORT: '8001'
-      });
+      let backendPath;
+      let command;
+      let args;
 
-      backendProcess = spawn(BACKEND_PATH, [], { env });
+      if (isDev) {
+        // Development mode - use Python directly
+        backendPath = path.join(__dirname, '../../backend');
+        command = 'python';
+        args = ['-m', 'uvicorn', 'server:app', '--host', '0.0.0.0', '--port', BACKEND_PORT.toString()];
+      } else {
+        // Production mode - use packaged executable
+        if (process.platform === 'win32') {
+          backendPath = path.join(process.resourcesPath, 'backend', 'server.exe');
+          command = backendPath;
+          args = [];
+        } else if (process.platform === 'darwin') {
+          backendPath = path.join(process.resourcesPath, 'backend', 'server');
+          command = backendPath;
+          args = [];
+        } else {
+          backendPath = path.join(process.resourcesPath, 'backend', 'server');
+          command = backendPath;
+          args = [];
+        }
+      }
+
+      console.log('Starting backend:', command, args);
+      console.log('Backend path:', backendPath);
+
+      const options = isDev ? { cwd: backendPath, shell: true } : { shell: false };
+      backendProcess = spawn(command, args, options);
 
       backendProcess.stdout.on('data', (data) => {
         console.log(`Backend: ${data}`);
@@ -102,9 +89,13 @@ function startBackend() {
         reject(error);
       });
 
-      // Wait for backend to start
+      backendProcess.on('close', (code) => {
+        console.log(`Backend process exited with code ${code}`);
+      });
+
+      // Wait for backend to be ready
       setTimeout(() => {
-        console.log('Backend started');
+        console.log('Backend server should be ready');
         resolve();
       }, 3000);
     } catch (error) {
@@ -114,122 +105,62 @@ function startBackend() {
   });
 }
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
-    minWidth: 800,
-    minHeight: 600,
-    icon: path.join(__dirname, 'icon.ico'),
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
-    },
-    frame: true,
-    titleBarStyle: 'default',
-    title: 'Tool Tạo Acc Garena'
-  });
-
-  const startURL = isDev
-    ? 'http://localhost:3000'
-    : `file://${path.join(__dirname, '../build/index.html')}`;
-
-  mainWindow.loadURL(startURL);
-
-  if (isDev) {
-    mainWindow.webContents.openDevTools();
+function stopBackendServer() {
+  if (backendProcess) {
+    console.log('Stopping backend server...');
+    backendProcess.kill();
+    backendProcess = null;
   }
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
-
-  // Minimize to tray
-  mainWindow.on('minimize', (event) => {
-    event.preventDefault();
-    mainWindow.hide();
-  });
-
-  mainWindow.on('close', (event) => {
-    if (!app.isQuiting) {
-      event.preventDefault();
-      mainWindow.hide();
-    }
-    return false;
-  });
 }
 
-function createTray() {
-  tray = new Tray(path.join(__dirname, 'icon.ico'));
-  
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Mở Tool Tạo Acc Garena',
-      click: () => {
-        mainWindow.show();
-      }
-    },
-    {
-      label: 'Thoát',
-      click: () => {
-        app.isQuiting = true;
-        app.quit();
-      }
-    }
-  ]);
-
-  tray.setToolTip('Tool Tạo Acc Garena');
-  tray.setContextMenu(contextMenu);
-  
-  tray.on('double-click', () => {
-    mainWindow.show();
-  });
-}
-
-// Auto-start management
-ipcMain.handle('get-auto-start', () => {
-  return app.getLoginItemSettings().openAtLogin;
+// IPC Handlers for settings
+ipcMain.handle('get-settings', async () => {
+  return {
+    mongoUrl: store.get('mongoUrl', ''),
+    apiKey: store.get('apiKey', ''),
+    backendUrl: `http://${BACKEND_HOST}:${BACKEND_PORT}`
+  };
 });
 
-ipcMain.handle('set-auto-start', (event, enabled) => {
-  app.setLoginItemSettings({
-    openAtLogin: enabled,
-    openAsHidden: false
-  });
-  return true;
-});
-
-// Settings management
-ipcMain.handle('get-settings', () => {
-  return store.store;
-});
-
-ipcMain.handle('set-setting', (event, key, value) => {
-  store.set(key, value);
-  return true;
-});
-
-app.on('ready', async () => {
+ipcMain.handle('save-settings', async (event, settings) => {
   try {
-    // Start MongoDB first
-    await startMongoDB();
-    
-    // Then start backend
-    await startBackend();
-    
-    // Create window and tray
-    createWindow();
-    createTray();
-    
-    console.log('App started successfully');
+    if (settings.mongoUrl) store.set('mongoUrl', settings.mongoUrl);
+    if (settings.apiKey) store.set('apiKey', settings.apiKey);
+    return { success: true };
   } catch (error) {
-    console.error('Failed to start app:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('get-backend-url', async () => {
+  return `http://${BACKEND_HOST}:${BACKEND_PORT}`;
+});
+
+ipcMain.handle('select-directory', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  });
+  return result.filePaths[0];
+});
+
+// App lifecycle
+app.whenReady().then(async () => {
+  try {
+    console.log('Starting application...');
+    await startBackendServer();
+    createWindow();
+  } catch (error) {
+    console.error('Failed to start application:', error);
+    dialog.showErrorBox('Startup Error', `Failed to start backend server: ${error.message}`);
+    app.quit();
   }
 });
 
 app.on('window-all-closed', () => {
-  // Don't quit on window close, keep in tray
+  stopBackendServer();
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
 
 app.on('activate', () => {
@@ -239,13 +170,9 @@ app.on('activate', () => {
 });
 
 app.on('before-quit', () => {
-  app.isQuiting = true;
-  
-  // Kill processes
-  if (backendProcess) {
-    backendProcess.kill();
-  }
-  if (mongoProcess) {
-    mongoProcess.kill();
-  }
+  stopBackendServer();
+});
+
+app.on('will-quit', () => {
+  stopBackendServer();
 });
