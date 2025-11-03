@@ -368,12 +368,16 @@ async def create_accounts(request: CreateAccountRequest, background_tasks: Backg
     job_dict = job.model_dump()
     job_dict['created_at'] = job_dict['created_at'].isoformat()
     
-    await db.insert_job(job_dict)
+    # Insert job and get auto-generated ID
+    new_job_id = await db.insert_job(job_dict)
+    
+    if not new_job_id:
+        raise HTTPException(status_code=500, detail="Failed to create job")
     
     # Start background task with email provider and username customization
     background_tasks.add_task(
         process_account_creation, 
-        job.job_id, 
+        new_job_id,
         request.quantity, 
         request.email_provider,
         request.username_prefix,
@@ -381,7 +385,7 @@ async def create_accounts(request: CreateAccountRequest, background_tasks: Backg
     )
     
     return {
-        "job_id": job.job_id,
+        "job_id": new_job_id,
         "message": f"Started creating {request.quantity} accounts with {request.email_provider}",
         "status": "processing",
         "email_provider": request.email_provider
