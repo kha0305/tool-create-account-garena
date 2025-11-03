@@ -6,9 +6,7 @@ a = Analysis(
     ['server.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        ('.env', '.'),
-    ],
+    datas=[],
     hiddenimports=[
         'uvicorn.logging',
         'uvicorn.loops',
