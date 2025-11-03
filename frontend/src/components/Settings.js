@@ -31,6 +31,7 @@ const Settings = ({ open, onOpenChange }) => {
         const settings = await window.electron.getSettings();
         setMongoUrl(settings.mongoUrl || '');
         setApiKey(settings.apiKey || '');
+        setDbName(settings.dbName || 'garena_creator_db');
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
