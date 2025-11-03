@@ -131,6 +131,8 @@
         }
       ],
       "icon": "public/icon.png",
+      "sign": false,
+      "signingHashAlgorithms": [],
       "signAndEditExecutable": false,
       "verifyUpdateCodeSignature": false
     },
