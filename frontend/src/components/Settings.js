@@ -16,6 +16,7 @@ import { Settings as SettingsIcon } from 'lucide-react';
 const Settings = ({ open, onOpenChange }) => {
   const [mongoUrl, setMongoUrl] = useState('');
   const [apiKey, setApiKey] = useState('');
+  const [dbName, setDbName] = useState('garena_creator_db');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
