@@ -470,7 +470,7 @@ async def test_temp_email():
     return {"email": email}
 
 @api_router.post("/accounts/{account_id}/verify-login")
-async def verify_account_login(account_id: str):
+async def verify_account_login(account_id: int):
     """Mark account as ready for verification"""
     account = await db.find_account(account_id)
     
