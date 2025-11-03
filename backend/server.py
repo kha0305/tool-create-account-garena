@@ -257,18 +257,27 @@ async def process_account_creation(job_id: str, quantity: int, email_provider: s
                     
                     account_dict = account.model_dump()
                     account_dict['created_at'] = account_dict['created_at'].isoformat()
-                    await db.insert_account(account_dict)
                     
-                    # Update job
-                    await db.update_job(
-                        job_id,
-                        {
-                            "$inc": {"completed": 1},
-                            "$push": {"accounts": account.id}
-                        }
-                    )
-                    success = True
-                    logging.info(f"✅ Account {i + 1}/{quantity} created successfully: {email}")
+                    # Insert and get the auto-generated ID
+                    new_id = await db.insert_account(account_dict)
+                    
+                    if new_id:
+                        # Update job with the new account ID
+                        await db.update_job(
+                            job_id,
+                            {
+                                "$inc": {"completed": 1},
+                                "$push": {"accounts": new_id}
+                            }
+                        )
+                        success = True
+                        logging.info(f"✅ Account {i + 1}/{quantity} created successfully: {email} (ID: {new_id})")
+                    else:
+                        logging.error(f"❌ Failed to insert account to database")
+                        await db.update_job(
+                            job_id,
+                            {"$inc": {"failed": 1}}
+                        )
                 else:
                     retry_count += 1
                     if retry_count < max_retries:
