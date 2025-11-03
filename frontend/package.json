@@ -129,12 +129,14 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "public/icon.png"
+      "icon": "public/icon.png",
+      "sign": false
     },
     "mac": {
       "target": "dmg",
       "icon": "public/icon.png",
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "identity": null
     },
     "linux": {
       "target": ["AppImage", "deb"],
