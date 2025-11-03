@@ -20,7 +20,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ total: 0, created: 0 });
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'dark';
+    return localStorage.getItem('theme') || 'light';
   });
   const [verifyDialog, setVerifyDialog] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -33,6 +33,10 @@ const Dashboard = () => {
   const [loadingEmailContent, setLoadingEmailContent] = useState(false);
   const [emailViewMode, setEmailViewMode] = useState('text'); // 'text' or 'html'
   const [exportFormat, setExportFormat] = useState('txt'); // 'txt', 'csv', or 'xlsx'
+  
+  // Sort state
+  const [sortBy, setSortBy] = useState('id'); // 'id' or 'username'
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
   
   // Custom username states
   const [usernamePrefix, setUsernamePrefix] = useState('');
