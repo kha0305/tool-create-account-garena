@@ -1,0 +1,22 @@
+# Icon Information
+
+Hiện tại có file icon.svg là placeholder.
+
+Để tạo icon chuyên nghiệp cho app:
+
+1. Tạo logo/icon với kích thước 512x512px
+2. Sử dụng công cụ online để convert:
+   - https://www.icoconverter.com/ (cho .ico và .icns)
+   - Hoặc: https://cloudconvert.com/
+
+3. Tạo các file:
+   - icon.ico (Windows) - 256x256px
+   - icon.icns (macOS) - 512x512px  
+   - icon.png (Linux) - 512x512px
+
+4. Copy vào thư mục này (frontend/public/)
+
+5. Build lại app với: ./build.sh hoặc build.bat
+
+Icon hiện tại đã đủ để build và test app.
+Có thể thay đổi sau khi app hoạt động ổn định.
