@@ -156,12 +156,12 @@ class MySQLDatabase:
             return None
 
     async def find_all_accounts(self, limit: int = 1000) -> List[Dict[str, Any]]:
-        """Get all accounts"""
+        """Get all accounts sorted by ID ascending (oldest first)"""
         try:
             async with self.pool.acquire() as conn:
                 async with conn.cursor(aiomysql.DictCursor) as cursor:
                     await cursor.execute(
-                        "SELECT * FROM garena_accounts ORDER BY created_at DESC LIMIT %s",
+                        "SELECT * FROM garena_accounts ORDER BY id ASC LIMIT %s",
                         (limit,)
                     )
                     accounts = await cursor.fetchall()
