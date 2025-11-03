@@ -115,16 +115,25 @@ const Settings = ({ open, onOpenChange }) => {
             </p>
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="apiKey">Temp Mail API Key (Optional)</Label>
+            <Label htmlFor="apiKey">
+              Temp Mail API Key 
+              <span className="ml-2 text-xs text-green-600 font-semibold">
+                ✓ Đã cung cấp sẵn
+              </span>
+            </Label>
             <Input
               id="apiKey"
-              placeholder="API key từ apilayer.com"
+              placeholder="Đã có API key mặc định"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               type="password"
             />
             <p className="text-sm text-muted-foreground">
-              API key cho dịch vụ email tạm (nếu cần)
+              API key đã được tích hợp sẵn, bạn không cần thay đổi.
+              <br />
+              <span className="text-green-600">
+                ✓ Có thể sử dụng ngay mà không cần cấu hình
+              </span>
             </p>
           </div>
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
