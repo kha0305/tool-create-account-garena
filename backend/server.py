@@ -507,7 +507,7 @@ async def update_account_status(account_id: int, status: str):
     return {"message": "Status updated successfully", "status": status}
 
 @api_router.put("/accounts/{account_id}/regenerate")
-async def regenerate_account_email(account_id: str):
+async def regenerate_account_email(account_id: int):
     """Regenerate email for an existing account - replaces email in-place"""
     try:
         # Get existing account
