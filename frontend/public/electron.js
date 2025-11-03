@@ -138,6 +138,7 @@ ipcMain.handle('get-settings', async () => {
   return {
     mongoUrl: store.get('mongoUrl', ''),
     apiKey: store.get('apiKey', ''),
+    dbName: store.get('dbName', 'garena_creator_db'),
     backendUrl: `http://${BACKEND_HOST}:${BACKEND_PORT}`
   };
 });
@@ -146,6 +147,7 @@ ipcMain.handle('save-settings', async (event, settings) => {
   try {
     if (settings.mongoUrl) store.set('mongoUrl', settings.mongoUrl);
     if (settings.apiKey) store.set('apiKey', settings.apiKey);
+    if (settings.dbName) store.set('dbName', settings.dbName);
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
