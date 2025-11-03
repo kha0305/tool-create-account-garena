@@ -433,7 +433,7 @@ async def get_all_accounts():
     return accounts
 
 @api_router.delete("/accounts/{account_id}")
-async def delete_account(account_id: str):
+async def delete_account(account_id: int):
     """Delete an account"""
     result = await db.delete_account(account_id)
     
