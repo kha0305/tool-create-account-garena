@@ -99,12 +99,36 @@ class MySQLDatabase:
     async def insert_account(self, account_data: Dict[str, Any]) -> bool:
         """Insert a new account"""
         try:
-            # Convert datetime to string if needed
-            if isinstance(account_data.get('created_at'), datetime):
-                account_data['created_at'] = account_data['created_at'].isoformat()
-            
-            result = await self.db.garena_accounts.insert_one(account_data)
-            return result.inserted_id is not None
+            async with self.pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    # Convert datetime to string if needed
+                    created_at = account_data.get('created_at')
+                    if isinstance(created_at, datetime):
+                        created_at = created_at.strftime('%Y-%m-%d %H:%M:%S')
+                    
+                    # Convert email_session_data to JSON string
+                    session_data = account_data.get('email_session_data')
+                    if session_data:
+                        session_data = json.dumps(session_data)
+                    
+                    await cursor.execute("""
+                        INSERT INTO garena_accounts 
+                        (id, username, email, password, phone, status, email_provider, email_session_data, created_at, error_message)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """, (
+                        account_data.get('id'),
+                        account_data.get('username'),
+                        account_data.get('email'),
+                        account_data.get('password'),
+                        account_data.get('phone'),
+                        account_data.get('status', 'creating'),
+                        account_data.get('email_provider', 'mail.tm'),
+                        session_data,
+                        created_at,
+                        account_data.get('error_message')
+                    ))
+                    await conn.commit()
+                    return True
         except Exception as e:
             logger.error(f"❌ Error inserting account: {e}")
             return False
@@ -112,10 +136,20 @@ class MySQLDatabase:
     async def find_account(self, account_id: str) -> Optional[Dict[str, Any]]:
         """Find account by ID"""
         try:
-            account = await self.db.garena_accounts.find_one({"id": account_id})
-            if account:
-                account.pop('_id', None)  # Remove MongoDB's _id
-            return account
+            async with self.pool.acquire() as conn:
+                async with conn.cursor(aiomysql.DictCursor) as cursor:
+                    await cursor.execute(
+                        "SELECT * FROM garena_accounts WHERE id = %s",
+                        (account_id,)
+                    )
+                    account = await cursor.fetchone()
+                    
+                    if account and account.get('email_session_data'):
+                        # Parse JSON field
+                        if isinstance(account['email_session_data'], str):
+                            account['email_session_data'] = json.loads(account['email_session_data'])
+                    
+                    return account
         except Exception as e:
             logger.error(f"❌ Error finding account: {e}")
             return None
@@ -123,14 +157,20 @@ class MySQLDatabase:
     async def find_all_accounts(self, limit: int = 1000) -> List[Dict[str, Any]]:
         """Get all accounts"""
         try:
-            cursor = self.db.garena_accounts.find().sort("created_at", DESCENDING).limit(limit)
-            accounts = await cursor.to_list(length=limit)
-            
-            # Remove MongoDB's _id from each account
-            for account in accounts:
-                account.pop('_id', None)
-            
-            return accounts
+            async with self.pool.acquire() as conn:
+                async with conn.cursor(aiomysql.DictCursor) as cursor:
+                    await cursor.execute(
+                        "SELECT * FROM garena_accounts ORDER BY created_at DESC LIMIT %s",
+                        (limit,)
+                    )
+                    accounts = await cursor.fetchall()
+                    
+                    # Parse JSON fields
+                    for account in accounts:
+                        if account.get('email_session_data') and isinstance(account['email_session_data'], str):
+                            account['email_session_data'] = json.loads(account['email_session_data'])
+                    
+                    return accounts
         except Exception as e:
             logger.error(f"❌ Error fetching accounts: {e}")
             return []
@@ -141,11 +181,25 @@ class MySQLDatabase:
             if not update_data:
                 return False
             
-            result = await self.db.garena_accounts.update_one(
-                {"id": account_id},
-                {"$set": update_data}
-            )
-            return result.modified_count > 0
+            async with self.pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    # Build SET clause dynamically
+                    set_clauses = []
+                    values = []
+                    
+                    for key, value in update_data.items():
+                        if key == 'email_session_data' and isinstance(value, dict):
+                            value = json.dumps(value)
+                        set_clauses.append(f"{key} = %s")
+                        values.append(value)
+                    
+                    values.append(account_id)
+                    
+                    query = f"UPDATE garena_accounts SET {', '.join(set_clauses)} WHERE id = %s"
+                    await cursor.execute(query, values)
+                    await conn.commit()
+                    
+                    return cursor.rowcount > 0
         except Exception as e:
             logger.error(f"❌ Error updating account: {e}")
             return False
@@ -153,8 +207,14 @@ class MySQLDatabase:
     async def delete_account(self, account_id: str) -> int:
         """Delete account by ID"""
         try:
-            result = await self.db.garena_accounts.delete_one({"id": account_id})
-            return result.deleted_count
+            async with self.pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    await cursor.execute(
+                        "DELETE FROM garena_accounts WHERE id = %s",
+                        (account_id,)
+                    )
+                    await conn.commit()
+                    return cursor.rowcount
         except Exception as e:
             logger.error(f"❌ Error deleting account: {e}")
             return 0
@@ -162,8 +222,11 @@ class MySQLDatabase:
     async def delete_all_accounts(self) -> int:
         """Delete all accounts"""
         try:
-            result = await self.db.garena_accounts.delete_many({})
-            return result.deleted_count
+            async with self.pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    await cursor.execute("DELETE FROM garena_accounts")
+                    await conn.commit()
+                    return cursor.rowcount
         except Exception as e:
             logger.error(f"❌ Error deleting all accounts: {e}")
             return 0
@@ -173,8 +236,14 @@ class MySQLDatabase:
         try:
             if not account_ids:
                 return 0
-            result = await self.db.garena_accounts.delete_many({"id": {"$in": account_ids}})
-            return result.deleted_count
+            
+            async with self.pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    placeholders = ','.join(['%s'] * len(account_ids))
+                    query = f"DELETE FROM garena_accounts WHERE id IN ({placeholders})"
+                    await cursor.execute(query, account_ids)
+                    await conn.commit()
+                    return cursor.rowcount
         except Exception as e:
             logger.error(f"❌ Error deleting multiple accounts: {e}")
             return 0
@@ -184,12 +253,35 @@ class MySQLDatabase:
     async def insert_job(self, job_data: Dict[str, Any]) -> bool:
         """Insert a new job"""
         try:
-            # Convert datetime to string if needed
-            if isinstance(job_data.get('created_at'), datetime):
-                job_data['created_at'] = job_data['created_at'].isoformat()
-            
-            result = await self.db.creation_jobs.insert_one(job_data)
-            return result.inserted_id is not None
+            async with self.pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    # Convert datetime to string if needed
+                    created_at = job_data.get('created_at')
+                    if isinstance(created_at, datetime):
+                        created_at = created_at.strftime('%Y-%m-%d %H:%M:%S')
+                    
+                    # Convert accounts list to JSON string
+                    accounts = job_data.get('accounts', [])
+                    if accounts:
+                        accounts = json.dumps(accounts)
+                    else:
+                        accounts = json.dumps([])
+                    
+                    await cursor.execute("""
+                        INSERT INTO creation_jobs 
+                        (job_id, total, completed, failed, status, accounts, created_at)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """, (
+                        job_data.get('job_id'),
+                        job_data.get('total'),
+                        job_data.get('completed', 0),
+                        job_data.get('failed', 0),
+                        job_data.get('status', 'processing'),
+                        accounts,
+                        created_at
+                    ))
+                    await conn.commit()
+                    return True
         except Exception as e:
             logger.error(f"❌ Error inserting job: {e}")
             return False
@@ -197,10 +289,20 @@ class MySQLDatabase:
     async def find_job(self, job_id: str) -> Optional[Dict[str, Any]]:
         """Find job by ID"""
         try:
-            job = await self.db.creation_jobs.find_one({"job_id": job_id})
-            if job:
-                job.pop('_id', None)  # Remove MongoDB's _id
-            return job
+            async with self.pool.acquire() as conn:
+                async with conn.cursor(aiomysql.DictCursor) as cursor:
+                    await cursor.execute(
+                        "SELECT * FROM creation_jobs WHERE job_id = %s",
+                        (job_id,)
+                    )
+                    job = await cursor.fetchone()
+                    
+                    if job and job.get('accounts'):
+                        # Parse JSON field
+                        if isinstance(job['accounts'], str):
+                            job['accounts'] = json.loads(job['accounts'])
+                    
+                    return job
         except Exception as e:
             logger.error(f"❌ Error finding job: {e}")
             return None
@@ -211,15 +313,54 @@ class MySQLDatabase:
             if not update_data:
                 return False
             
-            result = await self.db.creation_jobs.update_one(
-                {"job_id": job_id},
-                update_data
-            )
-            return result.modified_count > 0 or result.matched_count > 0
+            async with self.pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    # Handle MongoDB-style update operators
+                    if "$inc" in update_data:
+                        # Handle increment operations
+                        for field, value in update_data["$inc"].items():
+                            await cursor.execute(
+                                f"UPDATE creation_jobs SET {field} = {field} + %s WHERE job_id = %s",
+                                (value, job_id)
+                            )
+                    
+                    if "$push" in update_data:
+                        # Handle array push operations
+                        for field, value in update_data["$push"].items():
+                            if field == "accounts":
+                                # Get current accounts
+                                await cursor.execute(
+                                    "SELECT accounts FROM creation_jobs WHERE job_id = %s",
+                                    (job_id,)
+                                )
+                                result = await cursor.fetchone()
+                                if result:
+                                    current_accounts = json.loads(result[0]) if result[0] else []
+                                    current_accounts.append(value)
+                                    await cursor.execute(
+                                        "UPDATE creation_jobs SET accounts = %s WHERE job_id = %s",
+                                        (json.dumps(current_accounts), job_id)
+                                    )
+                    
+                    if "$set" in update_data:
+                        # Handle set operations
+                        set_clauses = []
+                        values = []
+                        for field, value in update_data["$set"].items():
+                            set_clauses.append(f"{field} = %s")
+                            values.append(value)
+                        
+                        if set_clauses:
+                            values.append(job_id)
+                            query = f"UPDATE creation_jobs SET {', '.join(set_clauses)} WHERE job_id = %s"
+                            await cursor.execute(query, values)
+                    
+                    await conn.commit()
+                    return True
         except Exception as e:
             logger.error(f"❌ Error updating job: {e}")
             return False
 
 
 # Global database instance
-db = MongoDatabase()
+db = MySQLDatabase()
