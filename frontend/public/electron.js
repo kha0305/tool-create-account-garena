@@ -51,11 +51,14 @@ function createWindow() {
 }
 
 function startBackendServer() {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       let backendPath;
       let command;
       let args;
+
+      // Initialize store if not already done
+      await initializeStore();
 
       // Get settings from store
       const mongoUrl = store.get('mongoUrl', 'mongodb://localhost:27017');
