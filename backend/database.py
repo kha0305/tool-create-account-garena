@@ -3,57 +3,97 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 import logging
 from dotenv import load_dotenv
-from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo import DESCENDING
+import aiomysql
+import json
 
 # Load environment variables
 load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-class MongoDatabase:
+class MySQLDatabase:
     def __init__(self):
-        self.client: Optional[AsyncIOMotorClient] = None
-        self.db = None
+        self.pool: Optional[aiomysql.Pool] = None
         
     async def connect(self):
-        """Create connection to MongoDB"""
+        """Create connection pool to MySQL"""
         try:
-            mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-            db_name = os.environ.get('DB_NAME', 'garena_creator_db')
+            host = os.environ.get('MYSQL_HOST', 'localhost')
+            port = int(os.environ.get('MYSQL_PORT', '3306'))
+            user = os.environ.get('MYSQL_USER', 'root')
+            password = os.environ.get('MYSQL_PASSWORD', '')
+            database = os.environ.get('MYSQL_DATABASE', 'garena_creator_db')
             
-            self.client = AsyncIOMotorClient(mongo_url)
-            self.db = self.client[db_name]
+            self.pool = await aiomysql.create_pool(
+                host=host,
+                port=port,
+                user=user,
+                password=password,
+                db=database,
+                charset='utf8mb4',
+                autocommit=True,
+                minsize=1,
+                maxsize=10
+            )
             
-            # Test connection
-            await self.client.admin.command('ping')
-            logger.info(f"✅ MongoDB connected successfully to database: {db_name}")
+            logger.info(f"✅ MySQL connected successfully to database: {database}")
             
-            # Create indexes
-            await self.create_indexes()
+            # Create tables if they don't exist
+            await self.create_tables()
         except Exception as e:
-            logger.error(f"❌ Failed to connect to MongoDB: {e}")
+            logger.error(f"❌ Failed to connect to MySQL: {e}")
             raise
     
-    async def create_indexes(self):
-        """Create indexes for better performance"""
+    async def create_tables(self):
+        """Create tables if they don't exist"""
         try:
-            # Index on created_at for garena_accounts
-            await self.db.garena_accounts.create_index([("created_at", DESCENDING)])
-            await self.db.garena_accounts.create_index("status")
+            async with self.pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    # Create garena_accounts table
+                    await cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS garena_accounts (
+                            id VARCHAR(255) PRIMARY KEY,
+                            username VARCHAR(255) NOT NULL,
+                            email VARCHAR(255) NOT NULL,
+                            password VARCHAR(255) NOT NULL,
+                            phone VARCHAR(50),
+                            status VARCHAR(50) DEFAULT 'creating',
+                            email_provider VARCHAR(100) DEFAULT 'mail.tm',
+                            email_session_data JSON,
+                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            error_message TEXT,
+                            INDEX idx_created_at (created_at),
+                            INDEX idx_status (status)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+                    """)
+                    
+                    # Create creation_jobs table
+                    await cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS creation_jobs (
+                            job_id VARCHAR(255) PRIMARY KEY,
+                            total INT NOT NULL,
+                            completed INT DEFAULT 0,
+                            failed INT DEFAULT 0,
+                            status VARCHAR(50) DEFAULT 'processing',
+                            accounts JSON,
+                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                            INDEX idx_created_at (created_at)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+                    """)
+                    
+                    await conn.commit()
             
-            # Index on created_at for creation_jobs
-            await self.db.creation_jobs.create_index([("created_at", DESCENDING)])
-            
-            logger.info("✅ Database indexes created successfully")
+            logger.info("✅ Database tables created successfully")
         except Exception as e:
-            logger.warning(f"⚠️ Failed to create indexes: {e}")
+            logger.warning(f"⚠️ Failed to create tables: {e}")
     
     async def close(self):
-        """Close MongoDB connection"""
-        if self.client:
-            self.client.close()
-            logger.info("✅ MongoDB connection closed")
+        """Close MySQL connection pool"""
+        if self.pool:
+            self.pool.close()
+            await self.pool.wait_closed()
+            logger.info("✅ MySQL connection closed")
 
     # ========== GARENA ACCOUNTS ==========
     async def insert_account(self, account_data: Dict[str, Any]) -> bool:
