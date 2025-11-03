@@ -52,7 +52,7 @@ class MySQLDatabase:
                     # Create garena_accounts table
                     await cursor.execute("""
                         CREATE TABLE IF NOT EXISTS garena_accounts (
-                            id VARCHAR(255) PRIMARY KEY,
+                            id INT AUTO_INCREMENT PRIMARY KEY,
                             username VARCHAR(255) NOT NULL,
                             email VARCHAR(255) NOT NULL,
                             password VARCHAR(255) NOT NULL,
