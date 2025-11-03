@@ -3,9 +3,18 @@ const path = require('path');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const isDev = require('electron-is-dev');
-const Store = require('electron-store');
 
-const store = new Store();
+// Initialize store as null, will be set after app is ready
+let store = null;
+
+// Function to initialize store
+async function initializeStore() {
+  if (!store) {
+    const Store = (await import('electron-store')).default;
+    store = new Store();
+  }
+  return store;
+}
 
 let mainWindow;
 let backendProcess;
