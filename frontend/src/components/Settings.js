@@ -114,6 +114,17 @@ const Settings = ({ open, onOpenChange }) => {
               Tên database sẽ được sử dụng
             </p>
           </div>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm mb-2">
+            <p className="font-semibold text-blue-900 mb-1">ℹ️ Dịch vụ Email Tạm:</p>
+            <ul className="text-blue-800 space-y-1 ml-4 list-disc">
+              <li><strong>Mail.tm:</strong> Miễn phí, không cần API key (mặc định)</li>
+              <li><strong>10MinuteMail:</strong> Miễn phí, không cần API key</li>
+              <li><strong>TempMail API:</strong> Sử dụng API key đã cung cấp sẵn</li>
+            </ul>
+            <p className="text-blue-700 mt-2 text-xs">
+              → App sẽ tự động chuyển đổi giữa các dịch vụ để đảm bảo hoạt động tốt nhất
+            </p>
+          </div>
           <div className="grid gap-2">
             <Label htmlFor="apiKey">
               Temp Mail API Key 
