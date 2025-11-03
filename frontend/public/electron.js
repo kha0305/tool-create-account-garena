@@ -147,6 +147,7 @@ function stopBackendServer() {
 
 // IPC Handlers for settings
 ipcMain.handle('get-settings', async () => {
+  await initializeStore();
   return {
     mongoUrl: store.get('mongoUrl', ''),
     apiKey: store.get('apiKey', ''),
@@ -157,6 +158,7 @@ ipcMain.handle('get-settings', async () => {
 
 ipcMain.handle('save-settings', async (event, settings) => {
   try {
+    await initializeStore();
     if (settings.mongoUrl) store.set('mongoUrl', settings.mongoUrl);
     if (settings.apiKey) store.set('apiKey', settings.apiKey);
     if (settings.dbName) store.set('dbName', settings.dbName);
