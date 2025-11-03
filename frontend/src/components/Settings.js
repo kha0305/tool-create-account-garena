@@ -46,6 +46,7 @@ const Settings = ({ open, onOpenChange }) => {
         const result = await window.electron.saveSettings({
           mongoUrl,
           apiKey,
+          dbName,
         });
 
         if (result.success) {
@@ -58,6 +59,7 @@ const Settings = ({ open, onOpenChange }) => {
         // Web mode - save to localStorage
         localStorage.setItem('mongoUrl', mongoUrl);
         localStorage.setItem('apiKey', apiKey);
+        localStorage.setItem('dbName', dbName);
         toast.success('Cài đặt đã được lưu!');
         onOpenChange(false);
       }
