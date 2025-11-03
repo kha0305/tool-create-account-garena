@@ -105,13 +105,14 @@
   "build": {
     "appId": "com.garena.accountcreator",
     "productName": "Garena Account Creator",
-    "forceCodeSigning": false,
+    "directories": {
+      "buildResources": "public"
+    },
     "files": [
       "build/**/*",
       "public/electron.js",
       "public/preload.js",
-      "public/icon.png",
-      "node_modules/**/*"
+      "../backend/dist/**/*"
     ],
     "extraResources": [
       {
@@ -120,9 +121,6 @@
         "filter": ["**/*"]
       }
     ],
-    "directories": {
-      "buildResources": "public"
-    },
     "win": {
       "target": [
         {
@@ -130,7 +128,6 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "public/icon.png",
       "sign": false,
       "signingHashAlgorithms": [],
       "signAndEditExecutable": false,
@@ -138,13 +135,10 @@
     },
     "mac": {
       "target": "dmg",
-      "icon": "public/icon.png",
-      "category": "public.app-category.utilities",
       "identity": null
     },
     "linux": {
       "target": ["AppImage", "deb"],
-      "icon": "public/icon.png",
       "category": "Utility"
     },
     "nsis": {
