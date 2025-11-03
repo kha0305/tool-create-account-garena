@@ -191,7 +191,7 @@ async def create_garena_account(username: str, email: str, phone: str, password:
         "password": password
     }
 
-async def process_account_creation(job_id: str, quantity: int, email_provider: str = "mail.tm", 
+async def process_account_creation(job_id: int, quantity: int, email_provider: str = "mail.tm", 
                                    username_prefix: Optional[str] = None, username_separator: str = "."):
     """Background task to create accounts with rate limiting protection"""
     global last_rate_limit_time
