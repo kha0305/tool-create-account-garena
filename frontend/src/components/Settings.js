@@ -98,6 +98,19 @@ const Settings = ({ open, onOpenChange }) => {
             </p>
           </div>
           <div className="grid gap-2">
+            <Label htmlFor="dbName">Database Name</Label>
+            <Input
+              id="dbName"
+              placeholder="garena_creator_db"
+              value={dbName}
+              onChange={(e) => setDbName(e.target.value)}
+              type="text"
+            />
+            <p className="text-sm text-muted-foreground">
+              Tên database sẽ được sử dụng
+            </p>
+          </div>
+          <div className="grid gap-2">
             <Label htmlFor="apiKey">Temp Mail API Key (Optional)</Label>
             <Input
               id="apiKey"
