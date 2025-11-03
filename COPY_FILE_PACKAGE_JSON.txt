@@ -1,0 +1,114 @@
+=====================================================
+HƯỚNG DẪN COPY FILE package.json VỀ MÁY WINDOWS
+=====================================================
+
+File package.json đã được sửa lỗi và có cú pháp JSON hoàn toàn hợp lệ.
+
+CÁC LỖI ĐÃ SỬA:
+================
+
+1. ❌ LỖI CŨ: "forceCodeSigning": false ở vị trí sai
+   ✅ ĐÃ XÓA: Property này không cần thiết
+
+2. ❌ LỖI CŨ: "icon": "public/icon.png" trong mỗi platform
+   ✅ ĐÃ XÓA: Icon không bắt buộc, sẽ dùng icon mặc định
+
+3. ❌ LỖI CŨ: "node_modules/**/*" trong files
+   ✅ ĐÃ XÓA: Không nên đóng gói toàn bộ node_modules
+
+4. ✅ ĐÃ THÊM: "sign": false và "signingHashAlgorithms": [] để tắt code signing
+
+5. ✅ ĐÃ SẮP XẾP: Thứ tự properties hợp lý hơn
+
+
+CÁCH COPY FILE VỀ WINDOWS:
+===========================
+
+Option 1: Copy thủ công
+------------------------
+1. Mở file: /app/frontend/package.json (trong môi trường này)
+2. Copy toàn bộ nội dung
+3. Mở file: D:\build_tool_acc\tool-create-account-garena\frontend\package.json
+4. Paste đè lên nội dung cũ
+5. Save file
+
+
+Option 2: Download từ Emergent (nếu có giao diện)
+--------------------------------------------------
+1. Download file /app/frontend/package.json
+2. Copy vào D:\build_tool_acc\tool-create-account-garena\frontend\package.json
+
+
+SAU KHI COPY FILE:
+==================
+
+Bước 1: Kiểm tra JSON hợp lệ
+----------------------------
+PowerShell:
+cd D:\build_tool_acc\tool-create-account-garena\frontend
+node -e "JSON.parse(require('fs').readFileSync('package.json', 'utf8')); console.log('OK!')"
+
+Nếu thấy "OK!" là file đã đúng!
+
+
+Bước 2: Xóa cache
+-----------------
+PowerShell:
+Remove-Item -Path "$env:LOCALAPPDATA\electron-builder" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:LOCALAPPDATA\electron" -Recurse -Force -ErrorAction SilentlyContinue
+
+
+Bước 3: Build lại
+-----------------
+PowerShell:
+cd D:\build_tool_acc\tool-create-account-garena
+.\fix_build.bat
+
+
+NẾU VẪN LỖI:
+=============
+
+Chạy từng lệnh riêng:
+---------------------
+cd D:\build_tool_acc\tool-create-account-garena\frontend
+
+# Build frontend trước
+yarn build
+
+# Nếu build frontend OK, build Electron
+set USE_HARD_LINKS=false
+yarn electron-builder --win --config.win.sign=false
+
+
+NẾU VẪN LỖI SYMLINK:
+=====================
+
+Chạy PowerShell với quyền Administrator:
+-----------------------------------------
+1. Chuột phải PowerShell → "Run as Administrator"
+2. cd D:\build_tool_acc\tool-create-account-garena
+3. .\fix_build.bat
+
+
+HOẶC bật Developer Mode:
+-------------------------
+1. Windows Settings → Update & Security → For developers
+2. Bật "Developer Mode"
+3. Restart máy
+4. Chạy lại build (không cần Admin)
+
+
+KẾT QUẢ MONG ĐỢI:
+==================
+
+File output:
+D:\build_tool_acc\tool-create-account-garena\frontend\dist\Garena Account Creator Setup 1.0.0.exe
+
+Kích thước: ~150-250MB
+
+
+=====================================================
+LIÊN HỆ NẾU VẪN GẶP VẤN ĐỀ
+=====================================================
+
+Paste toàn bộ error message để được hỗ trợ!
