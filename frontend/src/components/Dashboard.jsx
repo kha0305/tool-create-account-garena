@@ -289,6 +289,32 @@ const Dashboard = () => {
         {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
       </button>
 
+      {/* Settings Button */}
+      <button 
+        onClick={() => setSettingsOpen(true)} 
+        className={`settings-toggle ${theme}`}
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: '70px',
+          zIndex: 50,
+          width: '44px',
+          height: '44px',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+          background: theme === 'dark' ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(10px)',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+        }}
+        title="Cài đặt"
+      >
+        <SettingsIcon size={20} className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} />
+      </button>
+
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8 fade-in relative z-10">
         <div className="text-center mb-8">
