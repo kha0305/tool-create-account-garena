@@ -681,6 +681,47 @@ agent_communication:
     Chi tiết đầy đủ trong file: /app/SETUP_MYSQL_WINDOWS.md
     
     Backend sẵn sàng chạy với MySQL!"
+  - agent: "user"
+    message: "id thì cho 0,1,2,3 đừng mã hóa id"
+  - agent: "main"
+    message: "✅ ĐÃ THAY ĐỔI ID SANG SỐ TỰ TĂNG:
+    
+    **THAY ĐỔI:**
+    - ID cũ: UUID string (a1b2c3d4-e5f6-7890-abcd-ef1234567890)
+    - ID mới: Integer tự tăng (1, 2, 3, 4, 5...)
+    
+    **DATABASE SCHEMA:**
+    1. garena_accounts.id: VARCHAR(255) → INT AUTO_INCREMENT PRIMARY KEY
+    2. creation_jobs.job_id: VARCHAR(255) → INT AUTO_INCREMENT PRIMARY KEY
+    
+    **MODELS (server.py):**
+    - GarenaAccount.id: str (UUID) → Optional[int] (auto-generated)
+    - CreationJob.job_id: str (UUID) → Optional[int] (auto-generated)
+    - Accounts array: List[str] → List[int]
+    
+    **DATABASE OPERATIONS:**
+    - insert_account() returns cursor.lastrowid (ID vừa tạo)
+    - insert_job() returns cursor.lastrowid (job_id vừa tạo)
+    - Tất cả find/update/delete operations nhận int thay vì str
+    
+    **API ENDPOINTS:**
+    - /api/accounts/1/inbox (thay vì /api/accounts/uuid/inbox)
+    - /api/accounts/job/5 (thay vì /api/accounts/job/uuid)
+    - DELETE /api/accounts/3 (integer ID)
+    - POST /api/accounts/delete-multiple với [1, 3, 5]
+    
+    **LỢI ÍCH:**
+    ✅ Dễ đọc và nhớ (1, 2, 3 thay vì UUID)
+    ✅ Tiết kiệm storage (4 bytes vs 36 bytes)
+    ✅ Performance tốt hơn (index int nhanh hơn string)
+    ✅ User-friendly
+    
+    **LƯU Ý:**
+    - ID bắt đầu từ 1 (MySQL AUTO_INCREMENT)
+    - ID không bao giờ trùng hoặc thay đổi
+    - Xóa ID=5 → ID tiếp theo vẫn là 6 (không tái sử dụng)
+    
+    Chi tiết: /app/THAY_DOI_ID.md"
   - agent: "testing"
     message: "✅ ACCOUNT CREATION FUNCTIONALITY FULLY VERIFIED - All Requirements Met:
 
