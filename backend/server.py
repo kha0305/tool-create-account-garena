@@ -492,7 +492,7 @@ async def verify_account_login(account_id: int):
     }
 
 @api_router.put("/accounts/{account_id}/status")
-async def update_account_status(account_id: str, status: str):
+async def update_account_status(account_id: int, status: str):
     """Update account verification status"""
     valid_statuses = ["created", "verified", "failed", "pending_verification"]
     
