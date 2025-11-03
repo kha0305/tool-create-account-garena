@@ -692,7 +692,7 @@ async def test_email_provider(provider: str):
         }
 
 @api_router.get("/accounts/{account_id}/inbox/{message_id}")
-async def get_email_content(account_id: str, message_id: str):
+async def get_email_content(account_id: int, message_id: str):
     """Get full content of a specific email message"""
     account = await db.find_account(account_id)
     
