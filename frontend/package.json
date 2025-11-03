@@ -105,6 +105,7 @@
   "build": {
     "appId": "com.garena.accountcreator",
     "productName": "Garena Account Creator",
+    "forceCodeSigning": false,
     "files": [
       "build/**/*",
       "public/electron.js",
@@ -129,7 +130,9 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "public/icon.png"
+      "icon": "public/icon.png",
+      "signAndEditExecutable": false,
+      "verifyUpdateCodeSignature": false
     },
     "mac": {
       "target": "dmg",
