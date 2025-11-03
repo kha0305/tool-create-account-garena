@@ -71,7 +71,7 @@ class MySQLDatabase:
                     # Create creation_jobs table
                     await cursor.execute("""
                         CREATE TABLE IF NOT EXISTS creation_jobs (
-                            job_id VARCHAR(255) PRIMARY KEY,
+                            job_id INT AUTO_INCREMENT PRIMARY KEY,
                             total INT NOT NULL,
                             completed INT DEFAULT 0,
                             failed INT DEFAULT 0,
