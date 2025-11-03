@@ -12,7 +12,7 @@ import re
 from typing import Dict, List, Optional
 
 # Configuration
-BACKEND_URL = "https://app-packaging.preview.emergentagent.com/api"
+BACKEND_URL = "https://acctool-garena.preview.emergentagent.com/api"
 TIMEOUT = 30.0
 
 class GarenaBackendTester:
