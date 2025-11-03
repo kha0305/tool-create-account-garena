@@ -96,8 +96,8 @@ class MySQLDatabase:
             logger.info("✅ MySQL connection closed")
 
     # ========== GARENA ACCOUNTS ==========
-    async def insert_account(self, account_data: Dict[str, Any]) -> bool:
-        """Insert a new account"""
+    async def insert_account(self, account_data: Dict[str, Any]) -> Optional[int]:
+        """Insert a new account and return the auto-generated ID"""
         try:
             async with self.pool.acquire() as conn:
                 async with conn.cursor() as cursor:
@@ -111,12 +111,12 @@ class MySQLDatabase:
                     if session_data:
                         session_data = json.dumps(session_data)
                     
+                    # Don't include 'id' in INSERT - let MySQL auto-generate it
                     await cursor.execute("""
                         INSERT INTO garena_accounts 
-                        (id, username, email, password, phone, status, email_provider, email_session_data, created_at, error_message)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        (username, email, password, phone, status, email_provider, email_session_data, created_at, error_message)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, (
-                        account_data.get('id'),
                         account_data.get('username'),
                         account_data.get('email'),
                         account_data.get('password'),
@@ -128,10 +128,11 @@ class MySQLDatabase:
                         account_data.get('error_message')
                     ))
                     await conn.commit()
-                    return True
+                    # Return the auto-generated ID
+                    return cursor.lastrowid
         except Exception as e:
             logger.error(f"❌ Error inserting account: {e}")
-            return False
+            return None
     
     async def find_account(self, account_id: str) -> Optional[Dict[str, Any]]:
         """Find account by ID"""
